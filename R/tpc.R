@@ -157,7 +157,7 @@
 #'  }
 #'
 tpc <- function (suffStat, indepTest, alpha, labels, p,
-                 skel.method = c("stable", "stable.parallel"),
+                 skel.method = c("stable", "stable.parallel", "cuda"),
                  forbEdges = NULL, m.max = Inf,
                  conservative = FALSE, maj.rule = TRUE,
                  tiers = NULL, context.all = NULL, context.tier = NULL,
@@ -310,13 +310,11 @@ tpc <- function (suffStat, indepTest, alpha, labels, p,
   # skel.method <- "stable"
   skel.method <- match.arg(skel.method)
 
-  # skel <- tskeleton(suffStat, indepTest, alpha, labels = labels,
-  #                   method = skel.method, m.max = m.max,
-  #                   fixedGaps = fixedGaps, fixedEdges = fixedEdges,
-  #                   tiers = tiers, verbose = verbose)
-  #
-  # skel@call <- cl
-
+  if (skel.method == "cuda"){
+    skel <- tskeleton_cuda_MI(suffStat, indepTest, alpha, labels = labels,
+                              method = skel.method, fixedGaps = fixedGaps, fixedEdges = fixedEdges,
+                              m.max = m.max, verbose = verbose, tiers = tiers)
+  }
   if (skel.method == "stable.parallel") {
     if (is.null(numCores)) {stop("Please specify 'numCores'.")}
     skel <- tskeleton_parallel(suffStat, indepTest, alpha, labels = labels,
@@ -368,4 +366,138 @@ tpc <- function (suffStat, indepTest, alpha, labels, p,
   skelIII@graph <- as(gIII, "graphNEL")
   MeekRules(skelIII, verbose = verbose, unfVect = skelII$unfTripl,
             solve.confl = TRUE)
+}
+
+tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
+                       method = c("cuda"), m.max = Inf,
+                       fixedGaps = NULL, fixedEdges = NULL, NAdelete = TRUE,
+                       tiers = NULL, verbose = FALSE) {
+     
+     cl <- match.call()
+     if (!missing(p))
+        stopifnot(is.numeric(p), length(p <- as.integer(p)) ==
+                     1, p >= 2)
+     if (missing(labels)) {
+        if (missing(p))
+           stop("need to specify 'labels' or 'p'")
+        labels <- as.character(seq_len(p))
+     }   else {
+        stopifnot(is.character(labels))
+        if (missing(p))
+           p <- length(labels)
+        else if (p != length(labels))
+           stop("'p' is not needed when 'labels' is specified, and must match length(labels)")
+     }
+     seq_p <- seq_len(p)
+     method <- match.arg(method)
+     if (is.null(fixedGaps)) {
+        G <- matrix(TRUE, nrow = p, ncol = p)
+     } else if (!identical(dim(fixedGaps), c(p, p)))
+        stop("Dimensions of the dataset and fixedGaps do not agree.")
+     else if (!identical(fixedGaps, t(fixedGaps)))
+        stop("fixedGaps must be symmetric")
+     else G <- !fixedGaps
+     diag(G) <- FALSE
+     #################################################
+     ## if no tiers are specified, everything is tier 0
+     if (is.null(tiers)) {
+        tiers <- rep(0, p)
+     } else {
+        ## check if 'tiers' are correctly specified
+        if (!is.numeric(tiers)) {stop("'tiers' must be a numeric vector")}
+        if (length(tiers) != p) {stop("length of 'tiers' does not match 'p' or length of 'labels'")}
+     }
+     #################################################
+     if (any(is.null(fixedEdges))) {
+        fixedEdges <- matrix(rep(FALSE, p * p), nrow = p, ncol = p)
+     }
+     else if (!identical(dim(fixedEdges), c(p, p)))
+        stop("Dimensions of the dataset and fixedEdges do not agree.")
+     else if (!identical(fixedEdges, t(fixedEdges)))
+        stop("fixedEdges must be symmetric")
+
+    pval <- NULL
+    # seq_p is just the vector 1:p
+    # sepset is a list of p lists with p elements each,
+    # so each element represents an edge, and each edge is represented twice
+    
+    sepset <- lapply(seq_p, function(.) vector("list", p))
+    # pMax is a matrix with one p-value per edge, at the beginning all p-values
+    # are -Inf
+    pMax <- matrix(0, nrow = p, ncol = p)
+    n <- suffStat$n
+    m <- suffStat$m
+
+    C_array <- suffStat$C
+    C_vector <- as.vector(C_array)
+
+    # Initialize adjacency matrix G
+    G <- matrix(TRUE, nrow = p, ncol = p)
+    diag(G) <- FALSE
+    ord <- 0
+    G <- G * 1 # Convert logical to integer
+
+    # Determine maximum levels
+    if (m.max == Inf) {
+        max_level <- 32
+    } else {
+        max_level <- m.max
+    }
+
+    sepsetMatrix <- matrix(-1, nrow = p * p, ncol = 32)
+    dyn.load("SkeletonMI.so")
+
+
+
+    start_time <- proc.time()
+    z <- .C("SkeletonMI",
+        C = as.double(C_vector),
+        p = as.integer(p),
+        Nrows = as.integer(n),
+        m = as.integer(m),
+        G = as.integer(G),
+        Alpha = as.double(alpha),
+        l = as.integer(ord),
+        max_level = as.integer(max_level),
+        pmax = as.double(pMax),
+        sepsetmat = as.integer(sepsetMatrix)
+    )
+
+    ord <- z$l
+    G <- (matrix(z$G, nrow = p, ncol = p)) > 0
+
+    pMax <- (matrix(z$pmax, nrow = p, ncol = p))
+    pMax[which(pMax == -100000)] <- -Inf
+
+    sepsetMatrix <- t(matrix(z$sepsetmat, nrow = 32, ncol = p^2))
+    #print(sepsetMatrix)
+    index_of_cuted_edge <- row(sepsetMatrix)[which(sepsetMatrix != -1)]
+    for (i in index_of_cuted_edge) {
+        edge_idx <- i - 1  # Adjust for R's 1-based indexing
+        x <- (edge_idx %% p) + 1
+        y <- (edge_idx %/% p) + 1
+
+        # Find the last non -1 entry in the sepset row
+        sepset_entries <- sepsetMatrix[i, ]
+        #cat("x", x, "y", y, "sepset_entries", sepset_entries, "\n")
+        valid_entries <- sepset_entries[sepset_entries != -1]
+
+        # Assign the separation set
+        # sepset[[x]][[y]] <- sepset[[y]][[x]] <- valid_entries + 1
+        sepset[[x]][[y]] <- if (any(valid_entries == 0)) {
+                                integer(0)
+                            } else {
+                                valid_entries
+                            }
+    }
+
+   Gobject <- if (sum(G) == 0) {
+      new("graphNEL", nodes = labels)
+   } else {
+      colnames(G) <- rownames(G) <- labels
+      as(G, "graphNEL")
+   }
+   new("pcAlgo", graph = Gobject, call = cl, n = integer(0),
+       max.ord = as.integer(ord - 1), n.edgetests = 0,
+       sepset = sepset, pMax = pMax, zMin = matrix(NA, 1, 1))
 }

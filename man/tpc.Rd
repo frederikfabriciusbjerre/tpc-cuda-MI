@@ -10,7 +10,7 @@ tpc(
   alpha,
   labels,
   p,
-  skel.method = c("stable", "stable.parallel"),
+  skel.method = c("stable", "stable.parallel", "cuda"),
   forbEdges = NULL,
   m.max = Inf,
   conservative = FALSE,

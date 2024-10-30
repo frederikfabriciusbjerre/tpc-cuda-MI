@@ -86,10 +86,9 @@ cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, N
     sepset <- lapply(seq_p, function(.) vector("list", p)) # a list of lists [p x p]
     # save maximal p value
     pMax <- matrix(0, nrow = p, ncol = p)
-    number_of_levels <- 50
     n <- suffStat$n
     m <- suffStat$m
-    threshold <- rep(alpha, number_of_levels) # Simplified threshold assignment
+
     C_array <- suffStat$C
     C_vector <- as.vector(C_array)
 
@@ -97,7 +96,6 @@ cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, N
     G <- matrix(TRUE, nrow = p, ncol = p)
     diag(G) <- FALSE
     ord <- 0
-    done <- TRUE
     G <- G * 1 # Convert logical to integer
 
     # Determine maximum levels
