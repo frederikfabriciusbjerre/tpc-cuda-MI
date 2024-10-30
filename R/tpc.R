@@ -217,7 +217,7 @@ tpc <- function (suffStat, indepTest, alpha, labels, p,
     }
   }
 
-  if ( !is.null(context.tier) & !is.null(context.all) ) {
+  if ( !is.null(context.tier) && !is.null(context.all) ) {
     if (length(intersect(context.tier, context.all)) > 0) {
       stop(paste("The following variables are in both 'context.tier' and 'context.all': ",
                  paste(intersect(context.tier, context.all), collapse=",")))
@@ -231,7 +231,7 @@ tpc <- function (suffStat, indepTest, alpha, labels, p,
     stop("Choose one of conservative PC and majority rule PC!")
   }
 
-  if(!is.null(numCores) & is.null(cl.type)) stop("Specify cluster type.")
+  if(!is.null(numCores) && is.null(cl.type)) stop("Specify cluster type.")
 
 
   ## generate fixedEdges and fixedGaps according to context.all and context.tier
