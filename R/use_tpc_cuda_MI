@@ -7,50 +7,27 @@ library(igraph)
 library(mice)
 library(micd)
 library(miceadds)
+
+source("R/MeeksRules.R")
+source("R/tcheckTriple.R")
+source("R/tpc_cons_intern.R")
+source("R/tskeleton.R")
+source("R/tskeleton_parallel.R")
 source("R/tpc.R")
-# copied and changed from micd github
-getSuffCU <- function(X) {
-    if (!(mice::is.mids(X) || is.list(X))) {
-        stop("Data is neither a list nor a mids object.")
-    }
-
-    if (inherits(X, "mids")) {
-        X <- mice::complete(X, action = "all")
-        if (any(sapply(X, is.factor))) {
-            stop("Data must be all numeric.")
-        }
-    }
-
-    C_list <- lapply(X, cor)
-    p <- ncol(X[[1]])
-    m <- length(C_list)
-
-    C_array <- array(0, dim = c(p, p, m))
-
-    for (i in 1:m) {
-        C_array[, , i] <- C_list[[i]]
-    }
-    # potentially problematic, but I don't think so
-    # replace NA with 0.0, this is how it is handled in pcalg package
-    C_array[is.na(C_array)] <- 0.0
-    return(list(C = C_array, n = nrow(X[[1]]), m = m))
-}
-
 # read data as imputed_data
 dataset_path <- file.path("dataset_imputed/dataset_imputed.Rdata", fsep = .Platform$file.sep)
 load.Rdata(dataset_path, "imputed_data")
 
 # make suffStat
-suffStatMI <- getSuffCU(imputed_data) 
-
+suffStatMI <- micd::getSuff(imputed_data, test="gaussMItest")
 # input params to pc
 p <- imputed_data[[1]] %>% length()
-alpha <- 0.5
-max_order <- 20
+alpha <- 0.3
+max_order <- 5
 
 cat("Fitting with alpha =", alpha, "\n")
 tic()
-cuPCMI_fit <- tpc(suffStatMI, indepTest = gaussCItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda")
+cuPCMI_fit <- tpc(suffStatMI, indepTest = micd::gaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE)
 cat("\n")
 cat("cuPCMI\n")
 print(cuPCMI_fit)
@@ -61,13 +38,13 @@ cat("Time consumed:\n")
 toc()
 cat("\n")
 
-# suffStatMICD <- micd::getSuff(imputed_data, test="gaussMItest")
-# tic()
-# micd_PC <- pc(suffStatMICD, indepTest = gaussMItest, p = p, alpha = alpha, skel.method = "stable.fast", m.max = max_order)
-# print("The total time consumed by micd_PC is:")
-# toc()
-# cat("\n")
-# cat("micd_PC\n")
-# print(micd_PC)
-# cat("\n")
-# cat("cuPC ord:", micd_PC@max.ord, "\n")
+suffStatMICD <- micd::getSuff(imputed_data, test="gaussMItest")
+tic()
+micd_PC <- tpc(suffStatMICD, indepTest = gaussMItest, p = p, alpha = alpha, skel.method = "stable", m.max = max_order)
+print("The total time consumed by micd_PC is:")
+toc()
+cat("\n")
+cat("micd_PC\n")
+print(micd_PC)
+cat("\n")
+cat("micd_PC ord:", micd_PC@max.ord, "\n")

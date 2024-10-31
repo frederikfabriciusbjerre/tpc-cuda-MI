@@ -66,6 +66,8 @@
 #'
 #' @export
 #'
+
+source("R/tcheckTriple.R")
 tpc.cons.intern <- function(
   sk, suffStat, indepTest, alpha, version.unf = c(NA, NA),
   maj.rule = FALSE, forbEdges=NULL, tiers=NULL,
@@ -177,6 +179,7 @@ tpc.cons.intern <- function(
               "\n")
         }
         # checkTriple goes through all subsets of nbrsA and nbrsC
+        
         r.abc <- tcheckTriple(a, b, c, nbrsA, nbrsC, sk@sepset[[a]][[c]],
                              sk@sepset[[c]][[a]], suffStat = suffStat, indepTest = indepTest,
                              alpha = alpha, version.unf = version.unf, maj.rule = maj.rule,

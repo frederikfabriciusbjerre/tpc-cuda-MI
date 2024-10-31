@@ -315,7 +315,7 @@ tpc <- function (suffStat, indepTest, alpha, labels, p,
                               method = skel.method, fixedGaps = fixedGaps, fixedEdges = fixedEdges,
                               m.max = m.max, verbose = verbose, tiers = tiers)
   }
-  if (skel.method == "stable.parallel") {
+  else if (skel.method == "stable.parallel") {
     if (is.null(numCores)) {stop("Please specify 'numCores'.")}
     skel <- tskeleton_parallel(suffStat, indepTest, alpha, labels = labels,
                                method = skel.method,
@@ -333,7 +333,6 @@ tpc <- function (suffStat, indepTest, alpha, labels, p,
   }
 
   skel@call <- cl
-
 
   if (numEdges(skel@graph) == 0) {
     return(skel)
@@ -364,10 +363,12 @@ tpc <- function (suffStat, indepTest, alpha, labels, p,
   # step IV, Meek's rules
   skelIII <- skelII$sk
   skelIII@graph <- as(gIII, "graphNEL")
+  source("R/MeeksRules.R")
   MeekRules(skelIII, verbose = verbose, unfVect = skelII$unfTripl,
             solve.confl = TRUE)
 }
-
+library(Rfast)
+library(mice)
 tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
                        method = c("cuda"), m.max = Inf,
                        fixedGaps = NULL, fixedEdges = NULL, NAdelete = TRUE,
@@ -415,22 +416,24 @@ tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
         stop("Dimensions of the dataset and fixedEdges do not agree.")
      else if (!identical(fixedEdges, t(fixedEdges)))
         stop("fixedEdges must be symmetric")
-
-    pval <- NULL
-    # seq_p is just the vector 1:p
-    # sepset is a list of p lists with p elements each,
-    # so each element represents an edge, and each edge is represented twice
     
     sepset <- lapply(seq_p, function(.) vector("list", p))
     # pMax is a matrix with one p-value per edge, at the beginning all p-values
     # are -Inf
     pMax <- matrix(0, nrow = p, ncol = p)
-    n <- suffStat$n
-    m <- suffStat$m
 
-    C_array <- suffStat$C
-    C_vector <- as.vector(C_array)
+    m <- length(suffStat) - 1
+    C_list <- head(suffStat, m)
+    C_array <- array(0, dim = c(p, p, m))
 
+
+    for (i in 1:m) {
+        C_array[, , i] <- C_list[[i]]
+    }
+    # replace NA with 0.0, this is how it is handled in pcalg package
+    C_array[is.na(C_array)] <- 0.0
+    C_vector <- as.vector(C_array) # is this needed?
+    
     # Initialize adjacency matrix G
     G <- matrix(TRUE, nrow = p, ncol = p)
     diag(G) <- FALSE
@@ -445,10 +448,7 @@ tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
     }
 
     sepsetMatrix <- matrix(-1, nrow = p * p, ncol = 32)
-    dyn.load("SkeletonMI.so")
-
-
-
+    dyn.load("cuda/SkeletonMI.so")
     start_time <- proc.time()
     z <- .C("SkeletonMI",
         C = as.double(C_vector),
@@ -460,7 +460,8 @@ tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
         l = as.integer(ord),
         max_level = as.integer(max_level),
         pmax = as.double(pMax),
-        sepsetmat = as.integer(sepsetMatrix)
+        sepsetmat = as.integer(sepsetMatrix),
+        tiers = as.integer(tiers)
     )
 
     ord <- z$l
