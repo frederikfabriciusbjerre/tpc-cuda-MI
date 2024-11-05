@@ -20,6 +20,7 @@ load.Rdata(dataset_path, "imputed_data")
 
 # make suffStat
 suffStatMI <- micd::getSuff(imputed_data, test="gaussMItest")
+
 # input params to pc
 p <- imputed_data[[1]] %>% length()
 alpha <- 0.01
