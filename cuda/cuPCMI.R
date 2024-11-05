@@ -86,16 +86,25 @@ cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, N
     sepset <- lapply(seq_p, function(.) vector("list", p)) # a list of lists [p x p]
     # save maximal p value
     pMax <- matrix(0, nrow = p, ncol = p)
-    n <- suffStat$n
-    m <- suffStat$m
 
-    C_array <- suffStat$C
-    C_vector <- as.vector(C_array)
+    m <- length(suffStat) - 1
+    n <- suffStat[length(suffStat)]
+    C_list <- head(suffStat, m)
+    C_array <- array(0, dim = c(p, p, m))
+
+
+    for (i in 1:m) {
+        C_array[, , i] <- C_list[[i]]
+    }
+    # replace NA with 0.0, this is how it is handled in pcalg package
+    C_array[is.na(C_array)] <- 0.0
+    C_vector <- as.vector(C_array) # is this needed?
 
     # Initialize adjacency matrix G
     G <- matrix(TRUE, nrow = p, ncol = p)
     diag(G) <- FALSE
     ord <- 0
+    done <- TRUE
     G <- G * 1 # Convert logical to integer
 
     # Determine maximum levels
@@ -121,7 +130,8 @@ cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, N
         l = as.integer(ord),
         max_level = as.integer(max_level),
         pmax = as.double(pMax),
-        sepsetmat = as.integer(sepsetMatrix)
+        sepsetmat = as.integer(sepsetMatrix),
+        tiers = as.integer(rep(0, p))
     )
 
     ord <- z$l

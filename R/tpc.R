@@ -421,7 +421,7 @@ tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
     # pMax is a matrix with one p-value per edge, at the beginning all p-values
     # are -Inf
     pMax <- matrix(0, nrow = p, ncol = p)
-
+    n <- suffStat[length(suffStat)]
     m <- length(suffStat) - 1
     C_list <- head(suffStat, m)
     C_array <- array(0, dim = c(p, p, m))
@@ -463,7 +463,6 @@ tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
         sepsetmat = as.integer(sepsetMatrix),
         tiers = as.integer(tiers)
     )
-
     ord <- z$l
     G <- (matrix(z$G, nrow = p, ncol = p)) > 0
 

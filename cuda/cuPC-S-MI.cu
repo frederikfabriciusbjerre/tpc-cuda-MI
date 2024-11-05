@@ -65,14 +65,18 @@ void SkeletonMI(double* C, int *P, int *Nrows, int *m, int *G, double *Alpha, in
             SepSet_initialize<<< BLOCKS_PER_GRID, THREADS_PER_BLOCK >>>(SepSet_cuda, n);
             CudaCheckError();
             if ( (n * n) < 1024) {
-                BLOCKS_PER_GRID   = dim3( 1, 1 ,1);
-                THREADS_PER_BLOCK = dim3(32, 32, 1);
+                // BLOCKS_PER_GRID   = dim3( 1, 1 ,1);
+                // THREADS_PER_BLOCK = dim3(32, 32, 1);
+                BLOCKS_PER_GRID = dim3(NumOfBlockForEachNodeL1, n, 1);
+                THREADS_PER_BLOCK = dim3(ParGivenL1, 1, 1);
                 cal_Indepl0 <<< BLOCKS_PER_GRID, THREADS_PER_BLOCK >>>  (C_cuda, G_cuda, SepSet_cuda, pMax_cuda, tiers_cuda, alpha, n, nrows, M);
                 CudaCheckError();
             }
             else {
-                BLOCKS_PER_GRID   = dim3(ceil( ( (double) (n)) / 32.0), ceil( ( (double) (n)) / 32.0), 1);
-                THREADS_PER_BLOCK = dim3(32, 32, 1);
+                // BLOCKS_PER_GRID   = dim3(ceil( ( (double) (n)) / 32.0), ceil( ( (double) (n)) / 32.0), 1);
+                // THREADS_PER_BLOCK = dim3(32, 32, 1);
+                BLOCKS_PER_GRID = dim3(NumOfBlockForEachNodeL1, n, 1);
+                THREADS_PER_BLOCK = dim3(ParGivenL1, 1, 1);
                 cal_Indepl0 <<< BLOCKS_PER_GRID, THREADS_PER_BLOCK >>> (C_cuda, G_cuda, SepSet_cuda, pMax_cuda, tiers_cuda, alpha, n, nrows, M);
                 CudaCheckError();
             }
@@ -352,9 +356,10 @@ __global__ void cal_Indepl1(
 
         if (NbrIdxPointer < SizeOfArr) {
             NbrIdx = G_Chunk[NbrIdxPointer];
-
+            
+            int maxTier = max(tiers[XIdx], tiers[YIdx])
             // tiers constraint
-            if(tiers[NbrIdx] > tiers[XIdx]){
+            if(tiers[NbrIdx] > maxTier){
                 // skip, since the tier constraint is violated
                 continue;
             }
@@ -389,6 +394,7 @@ __global__ void cal_Indepl1(
                     }
                     // compute MI p-value
                     p_val = compute_MI_p_value(z_m, M, nrows, ord);
+
                     if (p_val >= alpha) {
                         if (atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0) {
                             // update G and pMax
