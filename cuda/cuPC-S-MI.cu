@@ -53,6 +53,7 @@ void SkeletonMI(double* C, int *P, int *Nrows, int *m, int *G, double *Alpha, in
     
     // copy correlation matrix from CPU to GPU
     HANDLE_ERROR( cudaMemcpy(C_cuda, C,       n * n * M * sizeof(double), cudaMemcpyHostToDevice) );
+    HANDLE_ERROR( cudaMemcpy(tiers_cuda, tiers,       n * sizeof(int),    cudaMemcpyHostToDevice) );
     // initialize a 0 matrix 
     HANDLE_ERROR( cudaMemset(mutex_cuda, 0, n * n * sizeof(int)) );
     
@@ -357,19 +358,19 @@ __global__ void cal_Indepl1(
         if (NbrIdxPointer < SizeOfArr) {
             NbrIdx = G_Chunk[NbrIdxPointer];
             
-            int maxTier = max(tiers[XIdx], tiers[YIdx])
-            // tiers constraint
-            if(tiers[NbrIdx] > maxTier){
-                // skip, since the tier constraint is violated
-                continue;
-            }
-            
             // loop over neighbors
             for (int d2 = 0; d2 < SizeOfArr; d2++) {
                 if (d2 == NbrIdxPointer) {
                     continue;
                 }
                 YIdx = G_Chunk[d2];
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                // printf("XIdx: %d, YIdx: %d, tiers[XIdx]: %d, tiers[YIdx]: %d maxTier: %d\n", XIdx, YIdx, tiers[XIdx], tiers[YIdx], max(tiers[XIdx], tiers[YIdx]));
+                // tiers constraint
+                if(tiers[NbrIdx] > maxTier){
+                    // skip, since the tier constraint is violated
+                    continue;
+                }
                 if (G[XIdx * n + YIdx] == 1) {
                     NoEdgeFlag = 0;
 
@@ -508,6 +509,22 @@ __global__ void cal_Indepl2(
                     continue;
                 }
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {
                     NoEdgeFlag = 0;
 
@@ -663,6 +680,22 @@ __global__ void cal_Indepl3(
                     continue;
                 }
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {    
                     NoEdgeFlag = 0;
 
@@ -846,6 +879,22 @@ __global__ void cal_Indepl4(
                     continue;
                 }
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {    
                     NoEdgeFlag = 0;
 
@@ -1043,6 +1092,22 @@ __global__ void cal_Indepl5(
                     continue;
                 }
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {    
                     NoEdgeFlag = 0;
 
@@ -1255,6 +1320,22 @@ __global__ void cal_Indepl6(
                     continue;
                 }
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {    
                     NoEdgeFlag = 0;
 
@@ -1482,6 +1563,22 @@ __global__ void cal_Indepl7(
                     continue;
                 }
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {    
                     NoEdgeFlag = 0;
 
@@ -1725,6 +1822,22 @@ __global__ void cal_Indepl8(
                     continue;
                 }
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {    
                     NoEdgeFlag = 0;
 
@@ -1991,6 +2104,22 @@ __global__ void cal_Indepl9(
                 if (skip) continue;
 
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {
                     NoEdgeFlag = 0;
 
@@ -2180,6 +2309,22 @@ __global__ void cal_Indepl10(
                 if (skip) continue;
 
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {
                     NoEdgeFlag = 0;
 
@@ -2370,6 +2515,22 @@ __global__ void cal_Indepl11(
                 if (skip) continue;
 
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {
                     NoEdgeFlag = 0;
 
@@ -2560,6 +2721,22 @@ __global__ void cal_Indepl12(
                 if (skip) continue;
 
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {
                     NoEdgeFlag = 0;
 
@@ -2749,6 +2926,22 @@ __global__ void cal_Indepl13(
                 if (skip) continue;
 
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {
                     NoEdgeFlag = 0;
 
@@ -2938,6 +3131,22 @@ __global__ void cal_Indepl14(
                 if (skip) continue;
 
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {
                     NoEdgeFlag = 0;
 
@@ -3140,6 +3349,22 @@ __global__ void cal_Indep(
                 if (skip) continue;
 
                 YIdx = G_Chunk[d2];
+
+                // tiers constraint
+                bool tiersConstraintViolation = false;
+                int maxTier = max(tiers[XIdx], tiers[YIdx]);
+                
+                for (int index = 0; index < 2; index++){
+                    if(tiers[NbrIdx[index]] > maxTier){
+                        // skip, since the tier constraint is violated
+                        tiersConstraintViolation = true;
+                        break;
+                    }
+                }
+                if (tiersConstraintViolation){ 
+                    continue;
+                }
+                
                 if (G[XIdx * n + YIdx] == 1) {
                     NoEdgeFlag = 0;
 

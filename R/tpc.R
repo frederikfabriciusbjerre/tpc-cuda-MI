@@ -446,7 +446,6 @@ tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
     } else {
         max_level <- m.max
     }
-
     sepsetMatrix <- matrix(-1, nrow = p * p, ncol = 32)
     dyn.load("cuda/SkeletonMI.so")
     start_time <- proc.time()
