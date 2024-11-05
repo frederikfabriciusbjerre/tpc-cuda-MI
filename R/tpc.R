@@ -482,12 +482,16 @@ tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
         valid_entries <- sepset_entries[sepset_entries != -1]
 
         # Assign the separation set
-        # sepset[[x]][[y]] <- sepset[[y]][[x]] <- valid_entries + 1
-        sepset[[x]][[y]] <- if (any(valid_entries == 0)) {
+        sepset[[x]][[y]] <- sepset[[y]][[x]] <- if (any(valid_entries == 0)) {
                                 integer(0)
                             } else {
                                 valid_entries
                             }
+        # sepset[[x]][[y]] <- if (any(valid_entries == 0)) {
+        #                         integer(0)
+        #                     } else {
+        #                         valid_entries
+        #                     }
     }
 
    Gobject <- if (sum(G) == 0) {

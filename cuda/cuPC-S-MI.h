@@ -89,6 +89,7 @@ extern "C" void SkeletonMI(double* C, int *P, int *Nrows, int *m, int *G, double
 __global__ void Initialize (int *Mat, int n);
 __global__ void scan_compact(int* G_Compact,  const int* G, const int n, int *nprime);
 __global__ void SepSet_initialize(int *SepSet, int size);
+__global__ void pMax_initialize(double *pMax, int size);
 
 __device__ void BINOM(int n, int k, int *out);
 __device__ void IthCombination(int out[], int N, int P, int L);

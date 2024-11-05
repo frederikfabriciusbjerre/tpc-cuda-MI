@@ -7,9 +7,9 @@ library(igraph)
 library(mice)
 library(miceadds)
 
-p <- 40 #number of nodes
-probability <- 0.075
-n <- 1000 #number of sample
+p <- 100 #number of nodes
+probability <- 0.025
+n <- 3000 #number of sample
 vars <- c(paste0(1:p))
 
 # mice params

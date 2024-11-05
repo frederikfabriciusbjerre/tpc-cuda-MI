@@ -7,7 +7,7 @@ library(igraph)
 library(mice)
 library(micd)
 library(miceadds)
-
+library(dplyr)
 source("R/MeeksRules.R")
 source("R/tcheckTriple.R")
 source("R/tpc_cons_intern.R")
@@ -26,7 +26,7 @@ p <- imputed_data[[1]] %>% length()
 alpha <- 0.01
 max_order <- 10
 
-tiers_ <- rep(c(1,2,3,4), times = c(10, 10, 10, 10))
+tiers_ <- rep(c(1, 2, 3, 4, 5), times = c(20, 20, 20, 20, 20))
 cat("Fitting with alpha =", alpha, "\n")
 tic()
 cuda_tPC <- tpc(suffStatMI, indepTest = micd::gaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
@@ -52,3 +52,18 @@ cat("alpha    =", alpha, "\n\n")
 cat("Time consumed:\n")
 toc()
 cat("\n")
+
+mask <- near(micd_tPC@pMax, cuda_tPC@pMax, tol = 0.001)
+lst1 <- micd_tPC@pMax[!mask]
+lst2 <- cuda_tPC@pMax[!mask]
+h <- 0
+j <- 0
+for (i in 1:length(lst1)){
+    if (lst2[i] != -Inf){
+        # cat(lst1[i], lst2[i], "\n")
+        h <- h + 1
+    }
+    j <- j + 1
+}
+cat("Number of pvals not equal             : ", j, "\n")
+cat("Number of pvals not equal without -Inf: ", h, "\n")
