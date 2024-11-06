@@ -15,7 +15,7 @@ source("R/tskeleton.R")
 source("R/tskeleton_parallel.R")
 source("R/tpc.R")
 # read data as imputed_data
-dataset_path <- file.path("dataset_imputed/dataset_imputed.Rdata", fsep = .Platform$file.sep)
+dataset_path <- file.path("imputed_datasets/imp1/imp1.Rdata", fsep = .Platform$file.sep)
 load.Rdata(dataset_path, "imputed_data")
 
 # make suffStat
@@ -67,4 +67,4 @@ for (i in 1:length(lst1)){
 }
 cat("Number of pvals not equal             : ", j, "\n")
 cat("Number of pvals not equal without -Inf: ", h, "\n")
-print(shd(micd_tPC, cuda_tPC))
+cat("shd:", shd(micd_tPC, cuda_tPC), "hd:", shd(ugraph(micd_tPC@graph), ugraph(cuda_tPC@graph)), "\n")
