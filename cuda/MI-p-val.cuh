@@ -3,8 +3,8 @@
 
 #include <cmath>
 #include <cuda_runtime.h>
-#include "pt_old.cuh"  
-// #include "pt.cuh"
+// #include "pt_old.cuh"  
+#include "pt.cuh"
 __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int ord) {
     // calculate avgz
     double z_sum = 0.0;
@@ -41,8 +41,8 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
 
     // return p-value
 
-    double p_val = 2.0 * (1.0 - pt(fabs(ts), df)); 
-    // double p_val = 2.0 * pt(fabs(ts), df, 0, 0);
+    // double p_val = 2.0 * (1.0 - pt(fabs(ts), df)); 
+    double p_val = 2.0 * pt(fabs(ts), df, 0, 0);
     return p_val;
 }
 
