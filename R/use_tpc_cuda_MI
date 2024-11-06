@@ -25,8 +25,8 @@ suffStatMI <- micd::getSuff(imputed_data, test="gaussMItest")
 p <- imputed_data[[1]] %>% length()
 alpha <- 0.01
 max_order <- 10
-
-tiers_ <- rep(c(1, 2, 3, 4, 5), times = c(20, 20, 20, 20, 20))
+tiers_ <- rep(c(1,2,3,4,5), times = c(2,2,2,2,2))
+# tiers_ <- rep(c(1, 2, 3, 4, 5), times = c(20, 20, 20, 20, 20))
 cat("Fitting with alpha =", alpha, "\n")
 tic()
 cuda_tPC <- tpc(suffStatMI, indepTest = micd::gaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
@@ -67,3 +67,4 @@ for (i in 1:length(lst1)){
 }
 cat("Number of pvals not equal             : ", j, "\n")
 cat("Number of pvals not equal without -Inf: ", h, "\n")
+print(shd(micd_tPC, cuda_tPC))

@@ -7,7 +7,7 @@
 
 // Device function to compute the continued fraction for the incomplete beta function
 __device__ double betacf(double a, double b, double x) {
-    const int MAX_ITER = 10000000;
+    const int MAX_ITER = 1000;
     const double EPS = 1.0e-15;
     const double FPMIN = 1.0e-30;
 

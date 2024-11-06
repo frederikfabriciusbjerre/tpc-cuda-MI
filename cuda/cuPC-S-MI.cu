@@ -381,7 +381,7 @@ __global__ void cal_Indepl1(
                     continue;
                 }
                 if (G[XIdx * n + YIdx] == 1) {
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -535,7 +535,7 @@ __global__ void cal_Indepl2(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -706,7 +706,7 @@ __global__ void cal_Indepl3(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {    
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -905,7 +905,7 @@ __global__ void cal_Indepl4(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {    
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -1118,7 +1118,7 @@ __global__ void cal_Indepl5(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {    
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -1346,7 +1346,7 @@ __global__ void cal_Indepl6(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {    
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -1589,7 +1589,7 @@ __global__ void cal_Indepl7(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {    
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -1848,7 +1848,7 @@ __global__ void cal_Indepl8(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {    
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -2130,7 +2130,7 @@ __global__ void cal_Indepl9(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -2335,7 +2335,7 @@ __global__ void cal_Indepl10(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -2541,7 +2541,7 @@ __global__ void cal_Indepl11(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -2747,7 +2747,7 @@ __global__ void cal_Indepl12(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -2952,7 +2952,7 @@ __global__ void cal_Indepl13(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -3157,7 +3157,7 @@ __global__ void cal_Indepl14(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
@@ -3373,7 +3373,7 @@ __global__ void cal_Indep(
                 }
                 
                 if (G[XIdx * n + YIdx] == 1) {
-                    atomicExch(&NoEdgeFlag, 0);
+                    NoEdgeFlag = 0;
 
                     // loop over all M imputations
                     for (int m = 0; m < M; m++) {
