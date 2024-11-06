@@ -34,7 +34,7 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
     if (B > 1e-12) {
         double temp = (W / B) * (M / (M + 1.0));
         df = (M - 1) * (1.0 + temp) * (1.0 + temp);
-        if (df > 10000) df = INFINITY;
+        if (df > 10000) df = INFINITY; // this should be reconsidered at some point
     } else {
         df = INFINITY;
     }
