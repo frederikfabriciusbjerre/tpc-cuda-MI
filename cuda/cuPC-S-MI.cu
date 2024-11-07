@@ -374,7 +374,7 @@ __global__ void cal_Indepl1(
                 }
                 YIdx = G_Chunk[d2];
                 int maxTier = max(tiers[XIdx], tiers[YIdx]);
-                // printf("XIdx: %d, YIdx: %d, tiers[XIdx]: %d, tiers[YIdx]: %d maxTier: %d\n", XIdx, YIdx, tiers[XIdx], tiers[YIdx], max(tiers[XIdx], tiers[YIdx]));
+                
                 // tiers constraint
                 if(tiers[NbrIdx] > maxTier){
                     // skip, since the tier constraint is violated

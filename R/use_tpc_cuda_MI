@@ -18,6 +18,11 @@ source("R/fixedMItest.R")
 
 shdsum <- 0
 hdsum <- 0
+alpha <- 0.1
+max_order <- 20
+tiers_ <- rep(c(1,2,3,4), times = c(10,10,10,10))
+# tiers_ <- NULL
+
 for (i in 1:5){
     # read data as imputed_data
     dataset_path <- file.path(paste0("imputed_datasets/imp", i, "/imp", i, ".Rdata"),
@@ -29,10 +34,7 @@ for (i in 1:5){
     suffStatSI <- list(C = suffStatMI[[1]], n = suffStatMI[[length(suffStatMI)]])
     # input params to pc
     p <- imputed_data[[1]] %>% length()
-    alpha <- 0.01
-    max_order <- 20
-    tiers_ <- rep(c(1,2,3,4), times = c(10,10,10,10))
-    # tiers_ <- rep(c(1, 2, 3, 4, 5), times = c(20, 20, 20, 20, 20))
+
     # cat("Fitting with alpha =", alpha, "\n")
     cat("######################################################################################\n")
     tic()
