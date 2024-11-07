@@ -4,7 +4,6 @@ fixedGaussMItest <- function (x, y, S, suffStat)
     M <- length(suffStat) - 1
     # sample size
     n <- suffStat[[length(suffStat)]]
-    
 
     z <- sapply(head(suffStat, -1), function(j) {
         zStatMI(x, y, S, C=j)
@@ -19,10 +18,13 @@ fixedGaussMItest <- function (x, y, S, suffStat)
     # 3. Between variance
     B <- sum( ( z - avgz )^2 ) / (M-1)
 
-    # if single imputation/m=1
+    ################################
+    # if single imputation / m = 1
     if (M == 1){
         return (2 * stats::pnorm(abs(avgz/sqrt(W)), lower.tail = FALSE))
     }
+    ################################
+    
     # 4. Total variance
     TV <- W + (1 + 1 / M) * B
 
