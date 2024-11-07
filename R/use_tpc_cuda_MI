@@ -14,7 +14,8 @@ source("R/tpc_cons_intern.R")
 source("R/tskeleton.R")
 source("R/tskeleton_parallel.R")
 source("R/tpc.R")
-
+shdsum <- 0
+hdsum <- 0
 for (i in 1:5){
     # read data as imputed_data
     dataset_path <- file.path(paste0("imputed_datasets/imp", i, "/imp", i, ".Rdata"),
@@ -27,15 +28,16 @@ for (i in 1:5){
     # input params to pc
     p <- imputed_data[[1]] %>% length()
     alpha <- 0.01
-    max_order <- 10
-    tiers_ <- rep(c(1,2,3,4,5), times = c(2,2,2,2,2))
+    max_order <- 20
+    tiers_ <- rep(c(1,2,3,4), times = c(10,10,10,10))
     # tiers_ <- rep(c(1, 2, 3, 4, 5), times = c(20, 20, 20, 20, 20))
-    cat("Fitting with alpha =", alpha, "\n")
+    # cat("Fitting with alpha =", alpha, "\n")
+    cat("######################################################################################\n")
     tic()
     cuda_tPC <- tpc(suffStatMI, indepTest = micd::gaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
     cat("\n")
     cat("cuda_tPC\n")
-    print(cuda_tPC)
+    print(cuda_tPC@graph)
     cat("\n")
     cat("cuda_tPC ord =", cuda_tPC@max.ord, "\n")
     cat("alpha    =", alpha, "\n\n")
@@ -48,7 +50,7 @@ for (i in 1:5){
     micd_tPC <- tpc(suffStatMICD, indepTest = gaussMItest, p = p, alpha = alpha, skel.method = "stable", m.max = max_order, tiers = tiers_)
     cat("\n")
     cat("micd_tPC\n")
-    print(micd_tPC)
+    print(micd_tPC@graph)
     cat("\n")
     cat("micd_tPC ord =", micd_tPC@max.ord, "\n")
     cat("alpha    =", alpha, "\n\n")
@@ -61,7 +63,7 @@ for (i in 1:5){
     lst2 <- cuda_tPC@pMax[!mask]
     h <- 0
     j <- 0
-    for (i in 1:length(lst1)){
+    for (i in 1:length(lst1)){ # nolint
         if (lst2[i] != -Inf){
             # cat(lst1[i], lst2[i], "\n")
             h <- h + 1
@@ -70,5 +72,10 @@ for (i in 1:5){
     }
     cat("Number of pvals not equal             : ", j, "\n")
     cat("Number of pvals not equal without -Inf: ", h, "\n")
+    shdsum <- shdsum + shd(micd_tPC, cuda_tPC)
+    hdsum <- hdsum + shd(ugraph(micd_tPC@graph), ugraph(cuda_tPC@graph))
     cat("shd:", shd(micd_tPC, cuda_tPC), "hd:", shd(ugraph(micd_tPC@graph), ugraph(cuda_tPC@graph)), "\n")
+    cat("######################################################################################\n\n\n")
 }
+print(shdsum)
+print(hdsum)
