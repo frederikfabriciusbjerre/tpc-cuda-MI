@@ -5,11 +5,7 @@ fixedGaussMItest <- function (x, y, S, suffStat)
     # sample size
     n <- suffStat[[length(suffStat)]]
     
-    # if single imputation/m=1
-    if (M == 1){
-        z <- zStat(x, y, S, suffStat$C, suffStat$n)
-        return (2 * stats::pnorm(abs(z), lower.tail = FALSE))
-    }
+
     z <- sapply(head(suffStat, -1), function(j) {
         zStatMI(x, y, S, C=j)
     })
@@ -23,6 +19,10 @@ fixedGaussMItest <- function (x, y, S, suffStat)
     # 3. Between variance
     B <- sum( ( z - avgz )^2 ) / (M-1)
 
+    # if single imputation/m=1
+    if (M == 1){
+        return (2 * stats::pnorm(abs(avgz/sqrt(W)), lower.tail = FALSE))
+    }
     # 4. Total variance
     TV <- W + (1 + 1 / M) * B
 
@@ -45,22 +45,6 @@ zStatMI <- function (x, y, S, C)
     if (is.na(res))
         0
     else res
-}
-zStat <- function(x,y, S, C, n)
-{
-  ## Purpose: Fisher's z-transform statistic of partial corr.(x,y | S)
-  ## ----------------------------------------------------------------------
-  ## Arguments:
-  ## - x,y,S: Are x,y cond. indep. given S?
-  ## - C: Correlation matrix among nodes
-  ## - n: Samples used to estimate correlation matrix
-  ## ----------------------------------------------------------------------
-  ## Author: Martin Maechler, 22 May 2006; Markus Kalisch
-
-  r <- pcalg::pcorOrder(x,y, S, C)
-
-  res <- sqrt(n- length(S) - 3) * 0.5 * log_q1pm(r)
-  if (is.na(res)) 0 else res
 }
 
 log_q1pm <- function(r) log1p(2 * r / (1 - r))
