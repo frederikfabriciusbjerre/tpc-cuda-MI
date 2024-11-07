@@ -18,7 +18,7 @@ source("R/fixedMItest.R")
 
 shdsum <- 0
 hdsum <- 0
-alpha <- 0.1
+alpha <- 0.01
 max_order <- 20
 tiers_ <- rep(c(1,2,3,4), times = c(10,10,10,10))
 # tiers_ <- NULL
