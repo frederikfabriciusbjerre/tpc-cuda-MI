@@ -521,8 +521,8 @@ __global__ void cal_Indepl2(
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -681,18 +681,24 @@ __global__ void cal_Indepl3(
             NbrIdx[1] = G_Chunk[NbrIdxPointer[1] - 1];
             NbrIdx[2] = G_Chunk[NbrIdxPointer[2] - 1];
 
-            
+            // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
-                if( (d2 == (NbrIdxPointer[0] - 1)) || (d2 == (NbrIdxPointer[1] - 1)) || (d2 == (NbrIdxPointer[2] - 1)) ){
-                    continue;
+                bool skip = false;
+                for (int idx = 0; idx < ord; idx++) {
+                    if (d2 == (NbrIdxPointer[idx] - 1)) {
+                        skip = true;
+                        break;
+                    }
                 }
+                if (skip) continue;
+
                 YIdx = G_Chunk[d2];
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -880,17 +886,22 @@ __global__ void cal_Indepl4(
 
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
-                if( (d2 == (NbrIdxPointer[0] - 1)) || (d2 == (NbrIdxPointer[1] - 1)) || 
-                    (d2 == (NbrIdxPointer[2] - 1)) || (d2 == (NbrIdxPointer[3] - 1))){
-                    continue;
+                bool skip = false;
+                for (int idx = 0; idx < ord; idx++) {
+                    if (d2 == (NbrIdxPointer[idx] - 1)) {
+                        skip = true;
+                        break;
+                    }
                 }
+                if (skip) continue;
+
                 YIdx = G_Chunk[d2];
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -1091,18 +1102,22 @@ __global__ void cal_Indepl5(
 
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
-                if( (d2 == (NbrIdxPointer[0] - 1)) || (d2 == (NbrIdxPointer[1] - 1)) || 
-                    (d2 == (NbrIdxPointer[2] - 1)) || (d2 == (NbrIdxPointer[3] - 1)) ||
-                    (d2 == (NbrIdxPointer[4] - 1))){
-                    continue;
+                bool skip = false;
+                for (int idx = 0; idx < ord; idx++) {
+                    if (d2 == (NbrIdxPointer[idx] - 1)) {
+                        skip = true;
+                        break;
+                    }
                 }
+                if (skip) continue;
+                
                 YIdx = G_Chunk[d2];
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -1318,18 +1333,22 @@ __global__ void cal_Indepl6(
 
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
-                if( (d2 == (NbrIdxPointer[0] - 1)) || (d2 == (NbrIdxPointer[1] - 1)) || 
-                    (d2 == (NbrIdxPointer[2] - 1)) || (d2 == (NbrIdxPointer[3] - 1)) ||
-                    (d2 == (NbrIdxPointer[4] - 1)) || (d2 == (NbrIdxPointer[5] - 1))){
-                    continue;
+                bool skip = false;
+                for (int idx = 0; idx < ord; idx++) {
+                    if (d2 == (NbrIdxPointer[idx] - 1)) {
+                        skip = true;
+                        break;
+                    }
                 }
+                if (skip) continue;
+                
                 YIdx = G_Chunk[d2];
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -1559,19 +1578,22 @@ __global__ void cal_Indepl7(
 
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
-                if( (d2 == (NbrIdxPointer[0] - 1)) || (d2 == (NbrIdxPointer[1] - 1)) || 
-                    (d2 == (NbrIdxPointer[2] - 1)) || (d2 == (NbrIdxPointer[3] - 1)) ||
-                    (d2 == (NbrIdxPointer[4] - 1)) || (d2 == (NbrIdxPointer[5] - 1)) ||
-                    (d2 == (NbrIdxPointer[6] - 1))){
-                    continue;
+                bool skip = false;
+                for (int idx = 0; idx < ord; idx++) {
+                    if (d2 == (NbrIdxPointer[idx] - 1)) {
+                        skip = true;
+                        break;
+                    }
                 }
+                if (skip) continue;
+                
                 YIdx = G_Chunk[d2];
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -1817,19 +1839,22 @@ __global__ void cal_Indepl8(
 
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
-                if( (d2 == (NbrIdxPointer[0] - 1)) || (d2 == (NbrIdxPointer[1] - 1)) || 
-                    (d2 == (NbrIdxPointer[2] - 1)) || (d2 == (NbrIdxPointer[3] - 1)) ||
-                    (d2 == (NbrIdxPointer[4] - 1)) || (d2 == (NbrIdxPointer[5] - 1)) ||
-                    (d2 == (NbrIdxPointer[6] - 1)) || (d2 == (NbrIdxPointer[7] - 1))){
-                    continue;
+                bool skip = false;
+                for (int idx = 0; idx < ord; idx++) {
+                    if (d2 == (NbrIdxPointer[idx] - 1)) {
+                        skip = true;
+                        break;
+                    }
                 }
+                if (skip) continue;
+                
                 YIdx = G_Chunk[d2];
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2096,7 +2121,7 @@ __global__ void cal_Indepl9(
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
                 bool skip = false;
-                for (int idx = 0; idx < 9; idx++) {
+                for (int idx = 0; idx < ord; idx++) {
                     if (d2 == (NbrIdxPointer[idx] - 1)) {
                         skip = true;
                         break;
@@ -2109,8 +2134,8 @@ __global__ void cal_Indepl9(
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2193,7 +2218,7 @@ __global__ void cal_Indepl9(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            for (int idx = 0; idx < 9; idx++) {
+                            for (int idx = 0; idx < ord; idx++) {
                                 Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
                             }
                         }
@@ -2300,7 +2325,7 @@ __global__ void cal_Indepl10(
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
                 bool skip = false;
-                for (int idx = 0; idx < 10; idx++) {
+                for (int idx = 0; idx < ord; idx++) {
                     if (d2 == (NbrIdxPointer[idx] - 1)) {
                         skip = true;
                         break;
@@ -2313,8 +2338,8 @@ __global__ void cal_Indepl10(
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2398,7 +2423,7 @@ __global__ void cal_Indepl10(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            for (int idx = 0; idx < 10; idx++) {
+                            for (int idx = 0; idx < ord; idx++) {
                                 Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
                             }
                         }
@@ -2505,7 +2530,7 @@ __global__ void cal_Indepl11(
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
                 bool skip = false;
-                for (int idx = 0; idx < 11; idx++) {
+                for (int idx = 0; idx < ord; idx++) {
                     if (d2 == (NbrIdxPointer[idx] - 1)) {
                         skip = true;
                         break;
@@ -2518,8 +2543,8 @@ __global__ void cal_Indepl11(
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2603,7 +2628,7 @@ __global__ void cal_Indepl11(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            for (int idx = 0; idx < 11; idx++) {
+                            for (int idx = 0; idx < ord; idx++) {
                                 Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
                             }
                         }
@@ -2710,7 +2735,7 @@ __global__ void cal_Indepl12(
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
                 bool skip = false;
-                for (int idx = 0; idx < 12; idx++) {
+                for (int idx = 0; idx < ord; idx++) {
                     if (d2 == (NbrIdxPointer[idx] - 1)) {
                         skip = true;
                         break;
@@ -2723,8 +2748,8 @@ __global__ void cal_Indepl12(
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2808,7 +2833,7 @@ __global__ void cal_Indepl12(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            for (int idx = 0; idx < 12; idx++) {
+                            for (int idx = 0; idx < ord; idx++) {
                                 Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
                             }
                         }
@@ -2914,7 +2939,7 @@ __global__ void cal_Indepl13(
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
                 bool skip = false;
-                for (int idx = 0; idx < 13; idx++) {
+                for (int idx = 0; idx < ord; idx++) {
                     if (d2 == (NbrIdxPointer[idx] - 1)) {
                         skip = true;
                         break;
@@ -2927,8 +2952,8 @@ __global__ void cal_Indepl13(
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -3012,7 +3037,7 @@ __global__ void cal_Indepl13(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            for (int idx = 0; idx < 13; idx++) {
+                            for (int idx = 0; idx < ord; idx++) {
                                 Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
                             }
                         }
@@ -3118,7 +3143,7 @@ __global__ void cal_Indepl14(
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
                 bool skip = false;
-                for (int idx = 0; idx < 14; idx++) {
+                for (int idx = 0; idx < ord; idx++) {
                     if (d2 == (NbrIdxPointer[idx] - 1)) {
                         skip = true;
                         break;
@@ -3131,8 +3156,8 @@ __global__ void cal_Indepl14(
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < ord; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -3216,7 +3241,7 @@ __global__ void cal_Indepl14(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            for (int idx = 0; idx < 14; idx++) {
+                            for (int idx = 0; idx < ord; idx++) {
                                 Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
                             }
                         }
@@ -3346,8 +3371,8 @@ __global__ void cal_Indep(
                 // tiers constraint
                 bool tiersConstraintViolation = false;
                 
-                for (int index = 0; index < order; index++){
-                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
+                for (int idx = 0; idx < order; idx++){
+                    if(tiers[NbrIdx[idx]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
