@@ -3,9 +3,10 @@
 
 #include <cmath>
 #include <cuda_runtime.h>
-// #include "pt_old.cuh"  
-#include "pt.cuh"
+#include "pt_old.cuh"  
+// #include "pt.cuh"
 __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int ord) {
+    // if m = 1
     // calculate avgz
     double z_sum = 0.0;
     for (int m = 0; m < M; m++) {
@@ -16,12 +17,15 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
     double W = 1.0 / (nrows - 3 - ord);
 
     // calculate between-imputation variance
-    double B_sum = 0.0;
-    for (int m = 0; m < M; m++) {
-        double diff = z_m[m] - avgz;
-        B_sum += diff * diff;
+    double B = 0.0;
+    if (M > 1) {
+        double B_sum = 0.0;
+        for (int m = 0; m < M; m++) {
+            double diff = z_m[m] - avgz;
+            B_sum += diff * diff;
+        }
+        B = B_sum / (M - 1.0);
     }
-    double B = B_sum / (M - 1.0);
 
     // calculate total variance
     double TV = W + (1.0 + 1.0 / M) * B;
@@ -41,8 +45,8 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
 
     // return p-value
 
-    // double p_val = 2.0 * (1.0 - pt(fabs(ts), df)); 
-    double p_val = 2.0 * pt(fabs(ts), df, 0, 0);
+    double p_val = 2.0 * (1.0 - pt(fabs(ts), df)); 
+    // double p_val = 2.0 * pt(fabs(ts), df, 0, 0);
     return p_val;
 }
 

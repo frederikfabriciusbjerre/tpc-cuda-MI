@@ -14,6 +14,8 @@ source("R/tpc_cons_intern.R")
 source("R/tskeleton.R")
 source("R/tskeleton_parallel.R")
 source("R/tpc.R")
+source("R/fixedMItest.R")
+
 shdsum <- 0
 hdsum <- 0
 for (i in 1:5){
@@ -24,7 +26,7 @@ for (i in 1:5){
 
     # make suffStat
     suffStatMI <- micd::getSuff(imputed_data, test="gaussMItest")
-
+    suffStatSI <- list(C = suffStatMI[[1]], n = suffStatMI[[length(suffStatMI)]])
     # input params to pc
     p <- imputed_data[[1]] %>% length()
     alpha <- 0.01
@@ -34,7 +36,7 @@ for (i in 1:5){
     # cat("Fitting with alpha =", alpha, "\n")
     cat("######################################################################################\n")
     tic()
-    cuda_tPC <- tpc(suffStatMI, indepTest = micd::gaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
+    cuda_tPC <- tpc(suffStatSI, indepTest = fixedGaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
     cat("\n")
     cat("cuda_tPC\n")
     print(cuda_tPC@graph)
@@ -45,9 +47,8 @@ for (i in 1:5){
     toc()
     cat("\n")
 
-    suffStatMICD <- micd::getSuff(imputed_data, test="gaussMItest")
     tic()
-    micd_tPC <- tpc(suffStatMICD, indepTest = gaussMItest, p = p, alpha = alpha, skel.method = "stable", m.max = max_order, tiers = tiers_)
+    micd_tPC <- tpc(suffStatSI, indepTest = fixedGaussMItest, p = p, alpha = alpha, skel.method = "stable", m.max = max_order, tiers = tiers_)
     cat("\n")
     cat("micd_tPC\n")
     print(micd_tPC@graph)
@@ -79,3 +80,4 @@ for (i in 1:5){
 }
 print(shdsum)
 print(hdsum)
+
