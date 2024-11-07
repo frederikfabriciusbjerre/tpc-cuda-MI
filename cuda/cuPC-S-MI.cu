@@ -373,10 +373,9 @@ __global__ void cal_Indepl1(
                     continue;
                 }
                 YIdx = G_Chunk[d2];
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 // tiers constraint
-                if(tiers[NbrIdx] > maxTier){
+                if(tiers[NbrIdx] > tiers[XIdx]){
                     // skip, since the tier constraint is violated
                     continue;
                 }
@@ -521,10 +520,9 @@ __global__ void cal_Indepl2(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -692,10 +690,9 @@ __global__ void cal_Indepl3(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -891,10 +888,9 @@ __global__ void cal_Indepl4(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -1104,10 +1100,9 @@ __global__ void cal_Indepl5(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -1332,10 +1327,9 @@ __global__ void cal_Indepl6(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -1575,10 +1569,9 @@ __global__ void cal_Indepl7(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -1834,10 +1827,9 @@ __global__ void cal_Indepl8(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2116,10 +2108,9 @@ __global__ void cal_Indepl9(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2321,10 +2312,9 @@ __global__ void cal_Indepl10(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2527,10 +2517,9 @@ __global__ void cal_Indepl11(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2733,10 +2722,9 @@ __global__ void cal_Indepl12(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -2938,10 +2926,9 @@ __global__ void cal_Indepl13(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -3143,10 +3130,9 @@ __global__ void cal_Indepl14(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < ord; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
@@ -3359,10 +3345,9 @@ __global__ void cal_Indep(
 
                 // tiers constraint
                 bool tiersConstraintViolation = false;
-                int maxTier = max(tiers[XIdx], tiers[YIdx]);
                 
                 for (int index = 0; index < order; index++){
-                    if(tiers[NbrIdx[index]] > maxTier){
+                    if(tiers[NbrIdx[index]] > tiers[XIdx]){
                         // skip, since the tier constraint is violated
                         tiersConstraintViolation = true;
                         break;
