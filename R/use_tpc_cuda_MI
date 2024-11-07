@@ -61,20 +61,20 @@ for (i in 1:5){
     toc()
     cat("\n")
 
-    mask <- near(micd_tPC@pMax, cuda_tPC@pMax, tol = 0.001)
-    lst1 <- micd_tPC@pMax[!mask]
-    lst2 <- cuda_tPC@pMax[!mask]
-    h <- 0
-    j <- 0
-    for (i in 1:length(lst1)){ # nolint
-        if (lst2[i] != -Inf){
-            # cat(lst1[i], lst2[i], "\n")
-            h <- h + 1
-        }
-        j <- j + 1
-    }
-    cat("Number of pvals not equal             : ", j, "\n")
-    cat("Number of pvals not equal without -Inf: ", h, "\n")
+    # mask <- near(micd_tPC@pMax, cuda_tPC@pMax, tol = 0.001)
+    # lst1 <- micd_tPC@pMax[!mask]
+    # lst2 <- cuda_tPC@pMax[!mask]
+    # h <- 0
+    # j <- 0
+    # for (i in 1:length(lst1)){ # nolint
+    #     if (lst2[i] != -Inf){
+    #         # cat(lst1[i], lst2[i], "\n")
+    #         h <- h + 1
+    #     }
+    #     j <- j + 1
+    # }
+    # cat("Number of pvals not equal             : ", j, "\n")
+    # cat("Number of pvals not equal without -Inf: ", h, "\n")
     shdsum <- shdsum + shd(micd_tPC, cuda_tPC)
     hdsum <- hdsum + shd(ugraph(micd_tPC@graph), ugraph(cuda_tPC@graph))
     cat("shd:", shd(micd_tPC, cuda_tPC), "hd:", shd(ugraph(micd_tPC@graph), ugraph(cuda_tPC@graph)), "\n")
