@@ -540,10 +540,11 @@ __global__ void cal_Indepl2(
 
                         // correlation coefs
                         M0_m = C[m * n * n + XIdx * n + YIdx]; 
-                        M1[0][0] = C[m * n * n + XIdx * n + NbrIdx[0]]; 
-                        M1[0][1] = C[m * n * n + XIdx * n + NbrIdx[1]]; 
-                        M1[1][0] = C[m * n * n + YIdx * n + NbrIdx[0]]; 
-                        M1[1][1] = C[m * n * n + YIdx * n + NbrIdx[1]]; 
+                        // compute M1 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
+                            M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
+                        }
 
                         // update M2 matrix with current imputation
                         M2[0][0] = 1.0;
@@ -715,13 +716,11 @@ __global__ void cal_Indepl3(
                     for (int m = 0; m < M; m++) {
                         // correlation coefs
                         M0_m = C[m * n * n + XIdx * n + YIdx];
-                        M1[0][0] = C[m * n * n + XIdx * n + NbrIdx[0]];
-                        M1[0][1] = C[m * n * n + XIdx * n + NbrIdx[1]];
-                        M1[0][2] = C[m * n * n + XIdx * n + NbrIdx[2]];
-                        
-                        M1[1][0] = C[m * n * n + YIdx * n + NbrIdx[0]];
-                        M1[1][1] = C[m * n * n + YIdx * n + NbrIdx[1]];
-                        M1[1][2] = C[m * n * n + YIdx * n + NbrIdx[2]];
+                        // compute M1 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
+                            M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
+                        }
                         
                         // update M2 matrix with current imputation
                         M2[0][0] = 1.0;
@@ -740,10 +739,10 @@ __global__ void cal_Indepl3(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 3; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0;
-                                for (int c3 = 0; c3 < 3; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -754,7 +753,7 @@ __global__ void cal_Indepl3(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0;
-                                for (int c3 = 0; c3 < 3; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -918,36 +917,26 @@ __global__ void cal_Indepl4(
 
                         // correlation coefs
                         M0_m = C[m * n * n + XIdx * n + YIdx]; 
-                        M1[0][0] = C[m * n * n + XIdx * n + NbrIdx[0]];
-                        M1[0][1] = C[m * n * n + XIdx * n + NbrIdx[1]];
-                        M1[0][2] = C[m * n * n + XIdx * n + NbrIdx[2]];
-                        M1[0][3] = C[m * n * n + XIdx * n + NbrIdx[3]];
+                        // compute M1 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
+                            M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
+                        }
 
-                        M1[1][0] = C[m * n * n + YIdx * n + NbrIdx[0]];
-                        M1[1][1] = C[m * n * n + YIdx * n + NbrIdx[1]];
-                        M1[1][2] = C[m * n * n + YIdx * n + NbrIdx[2]];
-                        M1[1][3] = C[m * n * n + YIdx * n + NbrIdx[3]];
-
-                        // update M2 matrix with current imputation
-                        M2[0][0] = 1.0;
-                        M2[0][1] = C[m * n * n + NbrIdx[0] * n + NbrIdx[1]];
-                        M2[0][2] = C[m * n * n + NbrIdx[0] * n + NbrIdx[2]];
-                        M2[0][3] = C[m * n * n + NbrIdx[0] * n + NbrIdx[3]];
-
-                        M2[1][0] = M2[0][1];
-                        M2[1][1] = 1.0;
-                        M2[1][2] = C[m * n * n + NbrIdx[1] * n + NbrIdx[2]];
-                        M2[1][3] = C[m * n * n + NbrIdx[1] * n + NbrIdx[3]];
-
-                        M2[2][0] = M2[0][2];
-                        M2[2][1] = M2[1][2];
-                        M2[2][2] = 1.0;
-                        M2[2][3] = C[m * n * n + NbrIdx[2] * n + NbrIdx[3]];
-
-                        M2[3][0] = M2[0][3];
-                        M2[3][1] = M2[1][3];
-                        M2[3][2] = M2[2][3];
-                        M2[3][3] = 1.0;
+                        // compute M2 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
+                                if(c1 > c2){
+                                    M2[c1][c2] = M2[c2][c1];
+                                }
+                                else if(c1 == c2){
+                                    M2[c1][c1] = 1.0;
+                                }
+                                else{
+                                    M2[c1][c2] = C[m * n * n + NbrIdx[c1] * n + NbrIdx[c2]];
+                                }
+                            }
+                        }
 
                         // compute pseudoinverse of M2
                         pseudoinversel4(M2, M2Inv, v, rv1, w, res1);
@@ -955,10 +944,10 @@ __global__ void cal_Indepl4(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 4; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 4; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -969,7 +958,7 @@ __global__ void cal_Indepl4(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 4; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -1133,48 +1122,26 @@ __global__ void cal_Indepl5(
                         
                         // correlation coefs
                         M0_m = C[m * n * n + XIdx * n + YIdx]; 
-                        M1[0][0] = C[m * n * n + XIdx * n + NbrIdx[0]];
-                        M1[0][1] = C[m * n * n + XIdx * n + NbrIdx[1]];
-                        M1[0][2] = C[m * n * n + XIdx * n + NbrIdx[2]];
-                        M1[0][3] = C[m * n * n + XIdx * n + NbrIdx[3]];
-                        M1[0][4] = C[m * n * n + XIdx * n + NbrIdx[4]];
+                        // compute M1 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
+                            M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
+                        }
 
-                        M1[1][0] = C[m * n * n + YIdx * n + NbrIdx[0]];
-                        M1[1][1] = C[m * n * n + YIdx * n + NbrIdx[1]];
-                        M1[1][2] = C[m * n * n + YIdx * n + NbrIdx[2]];
-                        M1[1][3] = C[m * n * n + YIdx * n + NbrIdx[3]];
-                        M1[1][4] = C[m * n * n + YIdx * n + NbrIdx[4]];
-
-                        // update M2 according to current imputation
-                        M2[0][0] = 1.0;
-                        M2[0][1] = C[m * n * n + NbrIdx[0] * n + NbrIdx[1]];
-                        M2[0][2] = C[m * n * n + NbrIdx[0] * n + NbrIdx[2]];
-                        M2[0][3] = C[m * n * n + NbrIdx[0] * n + NbrIdx[3]];
-                        M2[0][4] = C[m * n * n + NbrIdx[0] * n + NbrIdx[4]];
-
-                        M2[1][0] = M2[0][1];
-                        M2[1][1] = 1.0;
-                        M2[1][2] = C[m * n * n + NbrIdx[1] * n + NbrIdx[2]];
-                        M2[1][3] = C[m * n * n + NbrIdx[1] * n + NbrIdx[3]];
-                        M2[1][4] = C[m * n * n + NbrIdx[1] * n + NbrIdx[4]];
-
-                        M2[2][0] = M2[0][2];
-                        M2[2][1] = M2[1][2];
-                        M2[2][2] = 1.0;
-                        M2[2][3] = C[m * n * n + NbrIdx[2] * n + NbrIdx[3]];
-                        M2[2][4] = C[m * n * n + NbrIdx[2] * n + NbrIdx[4]];
-
-                        M2[3][0] = M2[0][3];
-                        M2[3][1] = M2[1][3];
-                        M2[3][2] = M2[2][3];
-                        M2[3][3] = 1.0;
-                        M2[3][4] = C[m * n * n + NbrIdx[3] * n + NbrIdx[4]];
-
-                        M2[4][0] = M2[0][4];
-                        M2[4][1] = M2[1][4];
-                        M2[4][2] = M2[2][4];
-                        M2[4][3] = M2[3][4];
-                        M2[4][4] = 1.0;
+                        // compute M2 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
+                                if(c1 > c2){
+                                    M2[c1][c2] = M2[c2][c1];
+                                }
+                                else if(c1 == c2){
+                                    M2[c1][c1] = 1.0;
+                                }
+                                else{
+                                    M2[c1][c2] = C[m * n * n + NbrIdx[c1] * n + NbrIdx[c2]];
+                                }
+                            }
+                        }
 
                         // compute pseudoinverse of M2
                         pseudoinversel5(M2, M2Inv, v, rv1, w, res1);
@@ -1182,10 +1149,10 @@ __global__ void cal_Indepl5(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 5; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 5; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -1196,7 +1163,7 @@ __global__ void cal_Indepl5(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 5; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -1362,62 +1329,26 @@ __global__ void cal_Indepl6(
                        
                         // correlation coefs
                         M0_m = C[m * n * n + XIdx * n + YIdx]; 
-                        M1[0][0] = C[m * n * n + XIdx * n + NbrIdx[0]];
-                        M1[0][1] = C[m * n * n + XIdx * n + NbrIdx[1]];
-                        M1[0][2] = C[m * n * n + XIdx * n + NbrIdx[2]];
-                        M1[0][3] = C[m * n * n + XIdx * n + NbrIdx[3]];
-                        M1[0][4] = C[m * n * n + XIdx * n + NbrIdx[4]];
-                        M1[0][5] = C[m * n * n + XIdx * n + NbrIdx[5]];
+                        // compute M1 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
+                            M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
+                        }
 
-                        M1[1][0] = C[m * n * n + YIdx * n + NbrIdx[0]];
-                        M1[1][1] = C[m * n * n + YIdx * n + NbrIdx[1]];
-                        M1[1][2] = C[m * n * n + YIdx * n + NbrIdx[2]];
-                        M1[1][3] = C[m * n * n + YIdx * n + NbrIdx[3]];
-                        M1[1][4] = C[m * n * n + YIdx * n + NbrIdx[4]];
-                        M1[1][5] = C[m * n * n + YIdx * n + NbrIdx[5]];
-
-                        // update M2 according to current imputation
-                        M2[0][0] = 1.0;
-                        M2[0][1] = C[m * n * n + NbrIdx[0] * n + NbrIdx[1]];
-                        M2[0][2] = C[m * n * n + NbrIdx[0] * n + NbrIdx[2]];
-                        M2[0][3] = C[m * n * n + NbrIdx[0] * n + NbrIdx[3]];
-                        M2[0][4] = C[m * n * n + NbrIdx[0] * n + NbrIdx[4]];
-                        M2[0][5] = C[m * n * n + NbrIdx[0] * n + NbrIdx[5]];
-
-                        M2[1][0] = M2[0][1];
-                        M2[1][1] = 1.0;
-                        M2[1][2] = C[m * n * n + NbrIdx[1] * n + NbrIdx[2]];
-                        M2[1][3] = C[m * n * n + NbrIdx[1] * n + NbrIdx[3]];
-                        M2[1][4] = C[m * n * n + NbrIdx[1] * n + NbrIdx[4]];
-                        M2[1][5] = C[m * n * n + NbrIdx[1] * n + NbrIdx[5]];
-
-                        M2[2][0] = M2[0][2];
-                        M2[2][1] = M2[1][2];
-                        M2[2][2] = 1.0;
-                        M2[2][3] = C[m * n * n + NbrIdx[2] * n + NbrIdx[3]];
-                        M2[2][4] = C[m * n * n + NbrIdx[2] * n + NbrIdx[4]];
-                        M2[2][5] = C[m * n * n + NbrIdx[2] * n + NbrIdx[5]];
-
-                        M2[3][0] = M2[0][3];
-                        M2[3][1] = M2[1][3];
-                        M2[3][2] = M2[2][3];
-                        M2[3][3] = 1.0;
-                        M2[3][4] = C[m * n * n + NbrIdx[3] * n + NbrIdx[4]];
-                        M2[3][5] = C[m * n * n + NbrIdx[3] * n + NbrIdx[5]];
-
-                        M2[4][0] = M2[0][4];
-                        M2[4][1] = M2[1][4];
-                        M2[4][2] = M2[2][4];
-                        M2[4][3] = M2[3][4];
-                        M2[4][4] = 1.0;
-                        M2[4][5] = C[m * n * n + NbrIdx[4] * n + NbrIdx[5]];
-
-                        M2[5][0] = M2[0][5];
-                        M2[5][1] = M2[1][5];
-                        M2[5][2] = M2[2][5];
-                        M2[5][3] = M2[3][5];
-                        M2[5][4] = M2[4][5];
-                        M2[5][5] = 1.0;
+                        // compute M2 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
+                                if(c1 > c2){
+                                    M2[c1][c2] = M2[c2][c1];
+                                }
+                                else if(c1 == c2){
+                                    M2[c1][c1] = 1.0;
+                                }
+                                else{
+                                    M2[c1][c2] = C[m * n * n + NbrIdx[c1] * n + NbrIdx[c2]];
+                                }
+                            }
+                        }
 
                         // compute pseudoinverse of M2
                         pseudoinversel6(M2, M2Inv, v, rv1, w, res1);
@@ -1425,10 +1356,10 @@ __global__ void cal_Indepl6(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 6; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 6; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -1439,7 +1370,7 @@ __global__ void cal_Indepl6(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 6; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -1604,78 +1535,27 @@ __global__ void cal_Indepl7(
                         
                         // correlation coefs
                         M0_m = C[m * n * n + XIdx * n + YIdx]; 
-                        M1[0][0] = C[m * n * n + XIdx * n + NbrIdx[0]];
-                        M1[0][1] = C[m * n * n + XIdx * n + NbrIdx[1]];
-                        M1[0][2] = C[m * n * n + XIdx * n + NbrIdx[2]];
-                        M1[0][3] = C[m * n * n + XIdx * n + NbrIdx[3]];
-                        M1[0][4] = C[m * n * n + XIdx * n + NbrIdx[4]];
-                        M1[0][5] = C[m * n * n + XIdx * n + NbrIdx[5]];
-                        M1[0][6] = C[m * n * n + XIdx * n + NbrIdx[6]];
+                        
+                        // compute M1 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
+                            M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
+                        }
 
-                        M1[1][0] = C[m * n * n + YIdx * n + NbrIdx[0]];
-                        M1[1][1] = C[m * n * n + YIdx * n + NbrIdx[1]];
-                        M1[1][2] = C[m * n * n + YIdx * n + NbrIdx[2]];
-                        M1[1][3] = C[m * n * n + YIdx * n + NbrIdx[3]];
-                        M1[1][4] = C[m * n * n + YIdx * n + NbrIdx[4]];
-                        M1[1][5] = C[m * n * n + YIdx * n + NbrIdx[5]];
-                        M1[1][6] = C[m * n * n + YIdx * n + NbrIdx[6]];
-
-                        // update M2 according to current 
-                        M2[0][0] = 1.0;
-                        M2[0][1] = C[m * n * n + NbrIdx[0] * n + NbrIdx[1]];
-                        M2[0][2] = C[m * n * n + NbrIdx[0] * n + NbrIdx[2]];
-                        M2[0][3] = C[m * n * n + NbrIdx[0] * n + NbrIdx[3]];
-                        M2[0][4] = C[m * n * n + NbrIdx[0] * n + NbrIdx[4]];
-                        M2[0][5] = C[m * n * n + NbrIdx[0] * n + NbrIdx[5]];
-                        M2[0][6] = C[m * n * n + NbrIdx[0] * n + NbrIdx[6]];
-
-                        M2[1][0] = M2[0][1];
-                        M2[1][1] = 1.0;
-                        M2[1][2] = C[m * n * n + NbrIdx[1] * n + NbrIdx[2]];
-                        M2[1][3] = C[m * n * n + NbrIdx[1] * n + NbrIdx[3]];
-                        M2[1][4] = C[m * n * n + NbrIdx[1] * n + NbrIdx[4]];
-                        M2[1][5] = C[m * n * n + NbrIdx[1] * n + NbrIdx[5]];
-                        M2[1][6] = C[m * n * n + NbrIdx[1] * n + NbrIdx[6]];
-
-                        M2[2][0] = M2[0][2];
-                        M2[2][1] = M2[1][2];
-                        M2[2][2] = 1.0;
-                        M2[2][3] = C[m * n * n + NbrIdx[2] * n + NbrIdx[3]];
-                        M2[2][4] = C[m * n * n + NbrIdx[2] * n + NbrIdx[4]];
-                        M2[2][5] = C[m * n * n + NbrIdx[2] * n + NbrIdx[5]];
-                        M2[2][6] = C[m * n * n + NbrIdx[2] * n + NbrIdx[6]];
-
-                        M2[3][0] = M2[0][3];
-                        M2[3][1] = M2[1][3];
-                        M2[3][2] = M2[2][3];
-                        M2[3][3] = 1.0;
-                        M2[3][4] = C[m * n * n + NbrIdx[3] * n + NbrIdx[4]];
-                        M2[3][5] = C[m * n * n + NbrIdx[3] * n + NbrIdx[5]];
-                        M2[3][6] = C[m * n * n + NbrIdx[3] * n + NbrIdx[6]];
-
-                        M2[4][0] = M2[0][4];
-                        M2[4][1] = M2[1][4];
-                        M2[4][2] = M2[2][4];
-                        M2[4][3] = M2[3][4];
-                        M2[4][4] = 1.0;
-                        M2[4][5] = C[m * n * n + NbrIdx[4] * n + NbrIdx[5]];
-                        M2[4][6] = C[m * n * n + NbrIdx[4] * n + NbrIdx[6]];
-
-                        M2[5][0] = M2[0][5];
-                        M2[5][1] = M2[1][5];
-                        M2[5][2] = M2[2][5];
-                        M2[5][3] = M2[3][5];
-                        M2[5][4] = M2[4][5];
-                        M2[5][5] = 1.0;
-                        M2[5][6] = C[m * n * n + NbrIdx[5] * n + NbrIdx[6]];
-
-                        M2[6][0] = M2[0][6];
-                        M2[6][1] = M2[1][6];
-                        M2[6][2] = M2[2][6];
-                        M2[6][3] = M2[3][6];
-                        M2[6][4] = M2[4][6];
-                        M2[6][5] = M2[5][6];
-                        M2[6][6] = 1.0;
+                        // compute M2 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
+                                if(c1 > c2){
+                                    M2[c1][c2] = M2[c2][c1];
+                                }
+                                else if(c1 == c2){
+                                    M2[c1][c1] = 1.0;
+                                }
+                                else{
+                                    M2[c1][c2] = C[m * n * n + NbrIdx[c1] * n + NbrIdx[c2]];
+                                }
+                            }
+                        }
 
                         // compute pseudoinverse of M2
                         pseudoinversel7(M2, M2Inv, v, rv1, w, res1);
@@ -1683,10 +1563,10 @@ __global__ void cal_Indepl7(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 7; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 7; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -1697,7 +1577,7 @@ __global__ void cal_Indepl7(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 7; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -1861,97 +1741,26 @@ __global__ void cal_Indepl8(
                         // compute M0_m
                         M0_m = C[m * n * n + XIdx * n + YIdx]; 
 
-                        // compute M1 matrices
-                        M1[0][0] = C[m * n * n + XIdx * n + NbrIdx[0]];
-                        M1[0][1] = C[m * n * n + XIdx * n + NbrIdx[1]];
-                        M1[0][2] = C[m * n * n + XIdx * n + NbrIdx[2]];
-                        M1[0][3] = C[m * n * n + XIdx * n + NbrIdx[3]];
-                        M1[0][4] = C[m * n * n + XIdx * n + NbrIdx[4]];
-                        M1[0][5] = C[m * n * n + XIdx * n + NbrIdx[5]];
-                        M1[0][6] = C[m * n * n + XIdx * n + NbrIdx[6]];
-                        M1[0][7] = C[m * n * n + XIdx * n + NbrIdx[7]];
-
-                        M1[1][0] = C[m * n * n + YIdx * n + NbrIdx[0]];
-                        M1[1][1] = C[m * n * n + YIdx * n + NbrIdx[1]];
-                        M1[1][2] = C[m * n * n + YIdx * n + NbrIdx[2]];
-                        M1[1][3] = C[m * n * n + YIdx * n + NbrIdx[3]];
-                        M1[1][4] = C[m * n * n + YIdx * n + NbrIdx[4]];
-                        M1[1][5] = C[m * n * n + YIdx * n + NbrIdx[5]];
-                        M1[1][6] = C[m * n * n + YIdx * n + NbrIdx[6]];
-                        M1[1][7] = C[m * n * n + YIdx * n + NbrIdx[7]];
+                        // compute M1 matrix
+                        for (int c1 = 0; c1 < ord; c1++){
+                            M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
+                            M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
+                        }
 
                         // compute M2 matrix
-                        M2[0][0] = 1.0;
-                        M2[0][1] = C[m * n * n + NbrIdx[0] * n + NbrIdx[1]];
-                        M2[0][2] = C[m * n * n + NbrIdx[0] * n + NbrIdx[2]];
-                        M2[0][3] = C[m * n * n + NbrIdx[0] * n + NbrIdx[3]];
-                        M2[0][4] = C[m * n * n + NbrIdx[0] * n + NbrIdx[4]];
-                        M2[0][5] = C[m * n * n + NbrIdx[0] * n + NbrIdx[5]];
-                        M2[0][6] = C[m * n * n + NbrIdx[0] * n + NbrIdx[6]];
-                        M2[0][7] = C[m * n * n + NbrIdx[0] * n + NbrIdx[7]];
-
-                        M2[1][0] = M2[0][1];
-                        M2[1][1] = 1.0;
-                        M2[1][2] = C[m * n * n + NbrIdx[1] * n + NbrIdx[2]];
-                        M2[1][3] = C[m * n * n + NbrIdx[1] * n + NbrIdx[3]];
-                        M2[1][4] = C[m * n * n + NbrIdx[1] * n + NbrIdx[4]];
-                        M2[1][5] = C[m * n * n + NbrIdx[1] * n + NbrIdx[5]];
-                        M2[1][6] = C[m * n * n + NbrIdx[1] * n + NbrIdx[6]];
-                        M2[1][7] = C[m * n * n + NbrIdx[1] * n + NbrIdx[7]];
-
-                        M2[2][0] = M2[0][2];
-                        M2[2][1] = M2[1][2];
-                        M2[2][2] = 1.0;
-                        M2[2][3] = C[m * n * n + NbrIdx[2] * n + NbrIdx[3]];
-                        M2[2][4] = C[m * n * n + NbrIdx[2] * n + NbrIdx[4]];
-                        M2[2][5] = C[m * n * n + NbrIdx[2] * n + NbrIdx[5]];
-                        M2[2][6] = C[m * n * n + NbrIdx[2] * n + NbrIdx[6]];
-                        M2[2][7] = C[m * n * n + NbrIdx[2] * n + NbrIdx[7]];
-
-                        M2[3][0] = M2[0][3];
-                        M2[3][1] = M2[1][3];
-                        M2[3][2] = M2[2][3];
-                        M2[3][3] = 1.0;
-                        M2[3][4] = C[m * n * n + NbrIdx[3] * n + NbrIdx[4]];
-                        M2[3][5] = C[m * n * n + NbrIdx[3] * n + NbrIdx[5]];
-                        M2[3][6] = C[m * n * n + NbrIdx[3] * n + NbrIdx[6]];
-                        M2[3][7] = C[m * n * n + NbrIdx[3] * n + NbrIdx[7]];
-
-                        M2[4][0] = M2[0][4];
-                        M2[4][1] = M2[1][4];
-                        M2[4][2] = M2[2][4];
-                        M2[4][3] = M2[3][4];
-                        M2[4][4] = 1.0;
-                        M2[4][5] = C[m * n * n + NbrIdx[4] * n + NbrIdx[5]];
-                        M2[4][6] = C[m * n * n + NbrIdx[4] * n + NbrIdx[6]];
-                        M2[4][7] = C[m * n * n + NbrIdx[4] * n + NbrIdx[7]];
-
-                        M2[5][0] = M2[0][5];
-                        M2[5][1] = M2[1][5];
-                        M2[5][2] = M2[2][5];
-                        M2[5][3] = M2[3][5];
-                        M2[5][4] = M2[4][5];
-                        M2[5][5] = 1.0;
-                        M2[5][6] = C[m * n * n + NbrIdx[5] * n + NbrIdx[6]];
-                        M2[5][7] = C[m * n * n + NbrIdx[5] * n + NbrIdx[7]];
-
-                        M2[6][0] = M2[0][6];
-                        M2[6][1] = M2[1][6];
-                        M2[6][2] = M2[2][6];
-                        M2[6][3] = M2[3][6];
-                        M2[6][4] = M2[4][6];
-                        M2[6][5] = M2[5][6];
-                        M2[6][6] = 1.0;
-                        M2[6][7] = C[m * n * n + NbrIdx[6] * n + NbrIdx[7]];
-
-                        M2[7][0] = M2[0][7];
-                        M2[7][1] = M2[1][7];
-                        M2[7][2] = M2[2][7];
-                        M2[7][3] = M2[3][7];
-                        M2[7][4] = M2[4][7];
-                        M2[7][5] = M2[5][7];
-                        M2[7][6] = M2[6][7];
-                        M2[7][7] = 1.0;
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
+                                if(c1 > c2){
+                                    M2[c1][c2] = M2[c2][c1];
+                                }
+                                else if(c1 == c2){
+                                    M2[c1][c1] = 1.0;
+                                }
+                                else{
+                                    M2[c1][c2] = C[m * n * n + NbrIdx[c1] * n + NbrIdx[c2]];
+                                }
+                            }
+                        }
 
                         // compute pseudoinverse of M2
                         pseudoinversel8(M2, M2Inv, v, rv1, w, res1);
@@ -1959,10 +1768,10 @@ __global__ void cal_Indepl8(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 8; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 8; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -1973,7 +1782,7 @@ __global__ void cal_Indepl8(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 8; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }   
@@ -2137,14 +1946,14 @@ __global__ void cal_Indepl9(
 
                         // correlation coefs
                         M0_m = C[m * n * n + XIdx * n + YIdx];
-                        for (int c1 = 0; c1 < 9; c1++){
+                        for (int c1 = 0; c1 < ord; c1++){
                             M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
                             M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
                         }
 
                         // compute M2 matrix
-                        for (int c1 = 0; c1 < 9; c1++){
-                            for(int c2 = 0; c2 < 9; c2++){
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
                                 if(c1 > c2){
                                     M2[c1][c2] = M2[c2][c1];
                                 }
@@ -2163,10 +1972,10 @@ __global__ void cal_Indepl9(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 9; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 9; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -2177,7 +1986,7 @@ __global__ void cal_Indepl9(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 9; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -2342,14 +2151,14 @@ __global__ void cal_Indepl10(
                         M0_m = C[m * n * n + XIdx * n + YIdx];
 
                         // compute M1 matrices
-                        for (int c1 = 0; c1 < 10; c1++){
+                        for (int c1 = 0; c1 < ord; c1++){
                             M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
                             M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
                         }
 
                         // compute M2 matrix
-                        for (int c1 = 0; c1 < 10; c1++){
-                            for(int c2 = 0; c2 < 10; c2++){
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
                                 if(c1 > c2){
                                     M2[c1][c2] = M2[c2][c1];
                                 }
@@ -2368,10 +2177,10 @@ __global__ void cal_Indepl10(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 10; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 10; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -2382,7 +2191,7 @@ __global__ void cal_Indepl10(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 10; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -2547,14 +2356,14 @@ __global__ void cal_Indepl11(
                         M0_m = C[m * n * n + XIdx * n + YIdx];
 
                         // compute M1 matrices
-                        for (int c1 = 0; c1 < 11; c1++){
+                        for (int c1 = 0; c1 < ord; c1++){
                             M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
                             M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
                         }
 
                         // compute M2 matrix
-                        for (int c1 = 0; c1 < 11; c1++){
-                            for(int c2 = 0; c2 < 11; c2++){
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
                                 if(c1 > c2){
                                     M2[c1][c2] = M2[c2][c1];
                                 }
@@ -2573,10 +2382,10 @@ __global__ void cal_Indepl11(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 11; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 11; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -2587,7 +2396,7 @@ __global__ void cal_Indepl11(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 11; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -2752,14 +2561,14 @@ __global__ void cal_Indepl12(
                         M0_m = C[m * n * n + XIdx * n + YIdx];
 
                         // compute M1 matrices
-                        for (int c1 = 0; c1 < 12; c1++){
+                        for (int c1 = 0; c1 < ord; c1++){
                             M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
                             M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
                         }
 
                         // compute M2 matrix
-                        for (int c1 = 0; c1 < 12; c1++){
-                            for(int c2 = 0; c2 < 12; c2++){
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
                                 if(c1 > c2){
                                     M2[c1][c2] = M2[c2][c1];
                                 }
@@ -2778,10 +2587,10 @@ __global__ void cal_Indepl12(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 12; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 12; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -2792,7 +2601,7 @@ __global__ void cal_Indepl12(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 12; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -2956,14 +2765,14 @@ __global__ void cal_Indepl13(
                         M0_m = C[m * n * n + XIdx * n + YIdx];
 
                         // compute M1 matrices
-                        for (int c1 = 0; c1 < 13; c1++){
+                        for (int c1 = 0; c1 < ord; c1++){
                             M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
                             M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
                         }
 
                         // compute M2 matrix
-                        for (int c1 = 0; c1 < 13; c1++){
-                            for(int c2 = 0; c2 < 13; c2++){
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
                                 if(c1 > c2){
                                     M2[c1][c2] = M2[c2][c1];
                                 }
@@ -2982,10 +2791,10 @@ __global__ void cal_Indepl13(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 13; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 13; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -2996,7 +2805,7 @@ __global__ void cal_Indepl13(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 13; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
@@ -3160,14 +2969,14 @@ __global__ void cal_Indepl14(
                         M0_m = C[m * n * n + XIdx * n + YIdx];
 
                         // compute M1 matrices
-                        for (int c1 = 0; c1 < 14; c1++){
+                        for (int c1 = 0; c1 < ord; c1++){
                             M1[0][c1] = C[m * n * n + XIdx * n + NbrIdx[c1]];
                             M1[1][c1] = C[m * n * n + YIdx * n + NbrIdx[c1]];
                         }
 
                         // compute M2 matrix
-                        for (int c1 = 0; c1 < 14; c1++){
-                            for(int c2 = 0; c2 < 14; c2++){
+                        for (int c1 = 0; c1 < ord; c1++){
+                            for(int c2 = 0; c2 < ord; c2++){
                                 if(c1 > c2){
                                     M2[c1][c2] = M2[c2][c1];
                                 }
@@ -3186,10 +2995,10 @@ __global__ void cal_Indepl14(
                         // compute M1 * M2Inv
                         for (int c1 = 0; c1 < 2; c1++)
                         {
-                            for (int c2 = 0; c2 < 14; c2++)
+                            for (int c2 = 0; c2 < ord; c2++)
                             {
                                 M1MulM2Inv[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 14; c3++)
+                                for (int c3 = 0; c2 < ord; c3++)
                                     M1MulM2Inv[c1][c2] += M1[c1][c3] * M2Inv[c3][c2];
                             }
                         }
@@ -3200,7 +3009,7 @@ __global__ void cal_Indepl14(
                             for (int c2 = 0; c2 < 2; c2++)
                             {
                                 H[c1][c2] = 0.0;
-                                for (int c3 = 0; c3 < 14; c3++)
+                                for (int c3 = 0; c3 < ord; c3++)
                                     H[c1][c2] += M1MulM2Inv[c1][c3] * M1[c2][c3];
                             }
                         }
