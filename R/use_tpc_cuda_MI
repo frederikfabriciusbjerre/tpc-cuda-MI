@@ -38,7 +38,7 @@ for (i in 1:5){
     # cat("Fitting with alpha =", alpha, "\n")
     cat("######################################################################################\n")
     tic()
-    cuda_tPC <- tpc(suffStatSI, indepTest = fixedGaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
+    cuda_tPC <- tpc(suffStatMI, indepTest = fixedGaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
     cat("\n")
     cat("cuda_tPC\n")
     print(cuda_tPC@graph)
@@ -50,7 +50,7 @@ for (i in 1:5){
     cat("\n")
 
     tic()
-    micd_tPC <- tpc(suffStatSI, indepTest = fixedGaussMItest, p = p, alpha = alpha, skel.method = "stable", m.max = max_order, tiers = tiers_)
+    micd_tPC <- tpc(suffStatMI, indepTest = fixedGaussMItest, p = p, alpha = alpha, skel.method = "stable", m.max = max_order, tiers = tiers_)
     cat("\n")
     cat("micd_tPC\n")
     print(micd_tPC@graph)

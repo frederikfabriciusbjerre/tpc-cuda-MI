@@ -677,9 +677,9 @@ __global__ void cal_Indepl3(
 
             // get the indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 3, tx + bx * ParGivenL3 + d1 * ParGivenL3 * NumOfBlockForEachNodeL3 + 1);
-            NbrIdx[0] = G_Chunk[NbrIdxPointer[0] - 1];
-            NbrIdx[1] = G_Chunk[NbrIdxPointer[1] - 1];
-            NbrIdx[2] = G_Chunk[NbrIdxPointer[2] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
+            }
 
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
@@ -879,10 +879,9 @@ __global__ void cal_Indepl4(
 
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 4, combIdx + 1);
-            NbrIdx[0] = G_Chunk[NbrIdxPointer[0] - 1];
-            NbrIdx[1] = G_Chunk[NbrIdxPointer[1] - 1];
-            NbrIdx[2] = G_Chunk[NbrIdxPointer[2] - 1];
-            NbrIdx[3] = G_Chunk[NbrIdxPointer[3] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
+            }
 
             // loop over neighbors
             for(int d2 = 0; d2 < SizeOfArr; d2++){
@@ -1096,8 +1095,8 @@ __global__ void cal_Indepl5(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 5, combIdx + 1);
-            for(int tmp = 0; tmp < 5; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -1327,8 +1326,8 @@ __global__ void cal_Indepl6(
 
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 6, combIdx + 1);
-            for(int tmp = 0; tmp < 6; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -1572,8 +1571,8 @@ __global__ void cal_Indepl7(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 7, combIdx + 1);
-            for(int tmp = 0; tmp < 7; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -1833,8 +1832,8 @@ __global__ void cal_Indepl8(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 8, combIdx + 1);
-            for(int tmp = 0; tmp < 8; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -2114,8 +2113,8 @@ __global__ void cal_Indepl9(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 9, combIdx + 1);
-            for(int tmp = 0; tmp < 9; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -2318,8 +2317,8 @@ __global__ void cal_Indepl10(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 10, combIdx + 1);
-            for(int tmp = 0; tmp < 10; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -2523,8 +2522,8 @@ __global__ void cal_Indepl11(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 11, combIdx + 1);
-            for(int tmp = 0; tmp < 11; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -2728,8 +2727,8 @@ __global__ void cal_Indepl12(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 12, combIdx + 1);
-            for(int tmp = 0; tmp < 12; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -2932,8 +2931,8 @@ __global__ void cal_Indepl13(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 13, combIdx + 1);
-            for(int tmp = 0; tmp < 13; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -3136,8 +3135,8 @@ __global__ void cal_Indepl14(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, 14, combIdx + 1);
-            for(int tmp = 0; tmp < 14; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < ord; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
@@ -3351,8 +3350,8 @@ __global__ void cal_Indep(
             __syncthreads();
             // get indices of the combination
             IthCombination(NbrIdxPointer, SizeOfArr, order, combIdx + 1);
-            for(int tmp = 0; tmp < order; tmp++){
-                NbrIdx[tmp] = G_Chunk[NbrIdxPointer[tmp] - 1];
+            for(int idx = 0; idx < order; idx++){
+                NbrIdx[idx] = G_Chunk[NbrIdxPointer[idx] - 1];
             }
 
             // loop over neighbors
