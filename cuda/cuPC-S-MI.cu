@@ -778,9 +778,9 @@ __global__ void cal_Indepl3(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            Sepset[(XIdx * n + YIdx) * ML] = NbrIdx[0] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 1] = NbrIdx[1] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 2] = NbrIdx[2] + 1;
+                            for (int idx = 0; idx < ord; idx++) {
+                                Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
+                            }
                         }
                     }
                 }
@@ -995,10 +995,9 @@ __global__ void cal_Indepl4(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            Sepset[(XIdx * n + YIdx) * ML] = NbrIdx[0];
-                            Sepset[(XIdx * n + YIdx) * ML + 1] = NbrIdx[1];
-                            Sepset[(XIdx * n + YIdx) * ML + 2] = NbrIdx[2];
-                            Sepset[(XIdx * n + YIdx) * ML + 3] = NbrIdx[3];
+                            for (int idx = 0; idx < ord; idx++) {
+                                Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
+                            }
                         }
                     }
                 }
@@ -1223,11 +1222,9 @@ __global__ void cal_Indepl5(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            Sepset[(XIdx * n + YIdx) * ML] = NbrIdx[0] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 1] = NbrIdx[1] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 2] = NbrIdx[2] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 3] = NbrIdx[3] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 4] = NbrIdx[4] + 1;
+                            for (int idx = 0; idx < ord; idx++) {
+                                Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
+                            }
                         }
                     }
                 }
@@ -1468,12 +1465,9 @@ __global__ void cal_Indepl6(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            Sepset[(XIdx * n + YIdx) * ML] = NbrIdx[0] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 1] = NbrIdx[1] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 2] = NbrIdx[2] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 3] = NbrIdx[3] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 4] = NbrIdx[4] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 5] = NbrIdx[5] + 1;   
+                            for (int idx = 0; idx < ord; idx++) {
+                                Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
+                            } 
                         }
                     }
                 }
@@ -1729,13 +1723,9 @@ __global__ void cal_Indepl7(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            Sepset[(XIdx * n + YIdx) * ML + 0] = NbrIdx[0] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 1] = NbrIdx[1] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 2] = NbrIdx[2] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 3] = NbrIdx[3] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 4] = NbrIdx[4] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 5] = NbrIdx[5] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 6] = NbrIdx[6] + 1;
+                            for (int idx = 0; idx < ord; idx++) {
+                                Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
+                            }
                         }
                     }
                 }
@@ -2008,14 +1998,9 @@ __global__ void cal_Indepl8(
                             G[YIdx * n + XIdx] = 0;
                             pMax[XIdx * n + YIdx] = p_val;
                             // assign sepset (+ 1 since R is one-indexed)
-                            Sepset[(XIdx * n + YIdx) * ML + 0] = NbrIdx[0] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 1] = NbrIdx[1] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 2] = NbrIdx[2] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 3] = NbrIdx[3] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 4] = NbrIdx[4] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 5] = NbrIdx[5] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 6] = NbrIdx[6] + 1;
-                            Sepset[(XIdx * n + YIdx) * ML + 7] = NbrIdx[7] + 1;
+                            for (int idx = 0; idx < ord; idx++) {
+                                Sepset[(XIdx * n + YIdx) * ML + idx] = NbrIdx[idx] + 1;
+                            }
                         }
                     }
                 }
