@@ -23,7 +23,7 @@ max_order <- 20
 tiers_ <- rep(c(1,2,3,4), times = c(10,10,10,10))
 # tiers_ <- NULL
 
-for (i in 1:5){
+for (i in 1:100){
     # read data as imputed_data
     dataset_path <- file.path(paste0("imputed_datasets/imp", i, "/imp", i, ".Rdata"),
                                      fsep = .Platform$file.sep)
@@ -37,10 +37,10 @@ for (i in 1:5){
 
     # cat("Fitting with alpha =", alpha, "\n")
     cat("######################################################################################\n")
-    tic()
-    cuda_tPC <- tpc(suffStatMI, indepTest = fixedGaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
     cat("\n")
-    cat("cuda_tPC\n")
+    cat("MI\n")
+    tic()
+    cuda_tPC_MI <- tpc(suffStatMI, indepTest = fixedGaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
     print(cuda_tPC@graph)
     cat("\n")
     cat("cuda_tPC ord =", cuda_tPC@max.ord, "\n")
@@ -49,13 +49,13 @@ for (i in 1:5){
     toc()
     cat("\n")
 
+    cat("\n")
+    cat("SI\n")
     tic()
-    micd_tPC <- tpc(suffStatMI, indepTest = fixedGaussMItest, p = p, alpha = alpha, skel.method = "stable", m.max = max_order, tiers = tiers_)
+    cuda_tPC_SI <- tpc(suffStatSI, indepTest = fixedGaussMItest, p = p, alpha = alpha, m.max = max_order, skel.method = "cuda", verbose = FALSE, tiers = tiers_)
+    print(cuda_tPC_SI@graph)
     cat("\n")
-    cat("micd_tPC\n")
-    print(micd_tPC@graph)
-    cat("\n")
-    cat("micd_tPC ord =", micd_tPC@max.ord, "\n")
+    cat("cuda_tPC_SI ord =", cuda_tPC_SI@max.ord, "\n")
     cat("alpha    =", alpha, "\n\n")
     cat("Time consumed:\n")
     toc()
@@ -75,11 +75,11 @@ for (i in 1:5){
     # }
     # cat("Number of pvals not equal             : ", j, "\n")
     # cat("Number of pvals not equal without -Inf: ", h, "\n")
-    shdsum <- shdsum + shd(micd_tPC, cuda_tPC)
-    hdsum <- hdsum + shd(ugraph(micd_tPC@graph), ugraph(cuda_tPC@graph))
-    cat("shd:", shd(micd_tPC, cuda_tPC), "hd:", shd(ugraph(micd_tPC@graph), ugraph(cuda_tPC@graph)), "\n")
+    shdsum <- shdsum + shd(cuda_tPC_SI, cuda_tPC_MI)
+    hdsum <- hdsum + shd(ugraph(cuda_tPC_SI@graph), ugraph(cuda_tPC_MI@graph))
+    cat("shd:", shd(cuda_tPC_SI, cuda_tPC_MI), "hd:", shd(ugraph(cuda_tPC_SI@graph), ugraph(cuda_tPC_MI@graph)), "\n")
     cat("######################################################################################\n\n\n")
 }
-print(shdsum)
-print(hdsum)
+cat("shd:", shdsum, "\n")
+cat("hd: ", hdsum, "\n")
 

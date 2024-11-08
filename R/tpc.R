@@ -446,6 +446,7 @@ tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
     } else {
         max_level <- m.max
     }
+    tic()
     sepsetMatrix <- matrix(-1, nrow = p * p, ncol = 32)
     dyn.load("cuda/SkeletonMI.so")
     start_time <- proc.time()
@@ -462,6 +463,9 @@ tskeleton_cuda_MI <- function (suffStat, indepTest, alpha, labels, p,
         sepsetmat = as.integer(sepsetMatrix),
         tiers = as.integer(tiers)
     )
+    cat("GPU time: ")
+    toc()
+    cat("\n")
     ord <- z$l
     G <- (matrix(z$G, nrow = p, ncol = p)) > 0
 
