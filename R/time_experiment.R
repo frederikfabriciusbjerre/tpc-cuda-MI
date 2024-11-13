@@ -92,11 +92,11 @@ colnames(summary_results) <- c("p", "m", "alpha", "mean_runtime", "sd_runtime")
 
 # Plot results with ggplot2
 # Plot: Runtime vs m for each p and alpha
-ggplot(summary_results, aes(x = m, y = mean_runtime, color = factor(p), shape = factor(alpha))) +
+ggplot(summary_results, aes(x = log10(m), y = log10(mean_runtime), color = factor(p), shape = factor(alpha))) +
   geom_point(size = 3) +
-  geom_line(aes(group = interaction(p, alpha)), linetype = "dotted") +
-  geom_errorbar(aes(ymin = mean_runtime - sd_runtime, ymax = mean_runtime + sd_runtime), width = 0.1) +
-  labs(title = "Runtime vs m for cu_pc_MI", x = "m", y = "Mean Runtime (seconds)",
+  geom_line(aes(group = interaction(p, alpha))) +
+  #geom_errorbar(aes(ymin = log10(mean_runtime - sd_runtime), ymax = log10(mean_runtime + sd_runtime)), width = 0.2) +
+  labs(title = "Log runtime vs log number of imputations for cuPC-MI", x = "log10(m)", y = "log10(Mean Runtime (seconds))",
        color = "p", shape = "alpha") +
   theme_minimal()
 
