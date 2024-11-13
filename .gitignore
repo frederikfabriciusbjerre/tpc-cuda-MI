@@ -7,3 +7,5 @@ imputed_datasets
 data
 R/Data_Generator loop.R
 cuda/SkeletonMI.so
+tpcConsIntern.so
+dataset_imputed*

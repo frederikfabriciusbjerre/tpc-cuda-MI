@@ -65,8 +65,8 @@ void SkeletonMI(double* C, int *P, int *Nrows, int *m, int *G, double *Alpha, in
             THREADS_PER_BLOCK = dim3(ML, 1, 1);
             SepSet_initialize<<< BLOCKS_PER_GRID, THREADS_PER_BLOCK >>>(SepSet_cuda, n);
             CudaCheckError();
-            BLOCKS_PER_GRID = dim3(n * n, 1, 1);
-            THREADS_PER_BLOCK = dim3(ML, 1, 1);
+            BLOCKS_PER_GRID = dim3(n, n, 1);
+            THREADS_PER_BLOCK = dim3(1, 1, 1);
             pMax_initialize<<< BLOCKS_PER_GRID, THREADS_PER_BLOCK >>>(pMax_cuda, n);
             CudaCheckError();
             if ( (n * n) < 1024) {
@@ -239,7 +239,7 @@ __global__ void SepSet_initialize(int *SepSet, int size){
 }
 __global__ void pMax_initialize(double *pMax, int size){
     int row = bx;
-    pMax[row * ML + tx] = -1;
+    pMax[row * size + tx] = -1;
 }
 
 

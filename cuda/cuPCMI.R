@@ -86,13 +86,11 @@ cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, N
     sepset <- lapply(seq_p, function(.) vector("list", p)) # a list of lists [p x p]
     # save maximal p value
     pMax <- matrix(0, nrow = p, ncol = p)
-
+    
     m <- length(suffStat) - 1
     n <- suffStat[length(suffStat)]
     C_list <- head(suffStat, m)
     C_array <- array(0, dim = c(p, p, m))
-
-
     for (i in 1:m) {
         C_array[, , i] <- C_list[[i]]
     }
@@ -115,7 +113,7 @@ cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, N
     }
 
     sepsetMatrix <- matrix(-1, nrow = p * p, ncol = 32)
-    dyn.load("SkeletonMI.so")
+    dyn.load("cuda/SkeletonMI.so")
 
 
 
