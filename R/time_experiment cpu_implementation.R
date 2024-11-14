@@ -42,7 +42,7 @@ datasets <- list(
 alphas <- c(0.01, 0.05, 0.1)
 m_values <- c(1, 10, 100, 1000)
 m_max <<- max(m_values)
-repeats <- 100  # Number of repetitions for each run
+repeats <- 10  # Number of repetitions for each run
 
 # Initialize a data frame to store runtime results
 results <- data.frame(
@@ -67,7 +67,7 @@ run_experiment <- function(dataset, p, alpha, m) {
   for (i in 1:repeats) {
     print(format(c(p,alpha,m), scientific=F))
     start_time <- Sys.time()
-    cuda_tPC_MI <- cu_pc_MI(suffStatMI, p = p, alpha = alpha, m.max = 12)
+    cuda_tPC_MI <- pc(suffStatMI, indepTest = gaussMItest, p = p, alpha = alpha, m.max = 12)
     end_time <- Sys.time()
     run_time <- as.numeric(difftime(end_time, start_time, units = "secs"))
     results <<- rbind(results, data.frame(p = p, m = m, alpha = alpha, run_time = run_time))
