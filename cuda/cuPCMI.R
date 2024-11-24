@@ -7,7 +7,7 @@ cu_pc_MI <- function(suffStat, indepTest, alpha, labels, p,
                      m.max = Inf, u2pd = c("relaxed", "rand", "retry"),
                      skel.method = c("stable", "original", "stable.fast"),
                      conservative = FALSE, maj.rule = FALSE,
-                     solve.confl = FALSE, verbose = FALSE) {
+                     solve.confl = FALSE, verbose = FALSE, df_method = c("old", "br", "reiter")) {
     ## Initial Checks
     cl <- match.call()
     if (!missing(p)) stopifnot(is.numeric(p), length(p <- as.integer(p)) == 1, p >= 2)
@@ -43,7 +43,7 @@ cu_pc_MI <- function(suffStat, indepTest, alpha, labels, p,
 
     ## Skeleton
     skel <- cu_skeleton_MI(suffStat, indepTest, alpha,
-        labels = labels, NAdelete = NAdelete, m.max = m.max, verbose = verbose
+        labels = labels, NAdelete = NAdelete, m.max = m.max, verbose = verbose, df_method = df_method
     )
     skel@call <- cl # so that makes it into result
     ## Orient edges
@@ -63,7 +63,7 @@ cu_pc_MI <- function(suffStat, indepTest, alpha, labels, p,
     }
 } ## {pc}
 
-cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, NAdelete = TRUE, verbose = FALSE) {
+cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, NAdelete = TRUE, verbose = FALSE, df_method) {
     cl <- match.call()
     if (!missing(p)) stopifnot(is.numeric(p), length(p <- as.integer(p)) == 1, p >= 2)
     if (missing(labels)) {

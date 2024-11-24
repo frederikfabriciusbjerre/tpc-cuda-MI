@@ -75,8 +75,14 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
             double df_obs = (1 - lambda) * ((df_com + 1) / (df_com + 3)) * df_com;
             double df_br = (df_old * df_obs) / (df_old + df_obs);
             df = df_br;   
+            if (isnan(df) || df < 1.0 || isinf(df)) {
+                df = df_com;
+            }
         } else if (df_method == 2) {
             df = df_reiter(B, W, M, df_com);
+            if (isnan(df) || df < 1.0 || isinf(df)) {
+                df = df_com;
+            }
         } else {
             df = INFINITY; // fallback for invalid input
         }
