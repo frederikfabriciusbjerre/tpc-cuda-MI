@@ -116,7 +116,18 @@ cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, N
     dyn.load("cuda/SkeletonMI.so")
 
 
-
+    if (df_method == "old"){
+        df_method_int <- 0
+    }
+    else if (df_method == "br"){
+        df_method_int <- 1
+    }
+    else if (df_method == "reiter"){
+        df_method_int <- 2
+    }
+    else{
+        stop("df method is not specified correctly. Should be either 'old', 'br', or 'reiter'")
+    }
     start_time <- proc.time()
     z <- .C("SkeletonMI",
         C = as.double(C_vector),
@@ -129,7 +140,8 @@ cu_skeleton_MI <- function(suffStat, indepTest, alpha, labels, p, m.max = Inf, N
         max_level = as.integer(max_level),
         pmax = as.double(pMax),
         sepsetmat = as.integer(sepsetMatrix),
-        tiers = as.integer(rep(0, p))
+        tiers = as.integer(rep(0, p)),
+        DF_method = as.integer(df_method_int)
     )
 
     ord <- z$l

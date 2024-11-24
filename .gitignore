@@ -14,3 +14,4 @@ R/tpc_cons_intern_test.R
 cuda/tpc_cons_intern.h
 cuda/tpc_cons_intern.cu
 cuda/test.cu
+cuda/.lintr

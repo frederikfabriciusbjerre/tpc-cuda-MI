@@ -19,6 +19,8 @@
 //@param Ncol       = Number of Col in Nbr matrix
 //============================================================================
 
+// global df method constant
+__constant__ int df_method;
 
 void SkeletonMI(double* C, int *P, int *Nrows, int *m, int *G, double *Alpha, int *l, int *maxlevel, double *pMax, int* SepSet, int* tiers, int* DF_method)
 {
@@ -3245,7 +3247,7 @@ __global__ void cal_Indep(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, order);
+                    p_val = compute_MI_p_value(z_m, M, nrows, order, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
