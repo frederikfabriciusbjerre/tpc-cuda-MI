@@ -9,3 +9,8 @@ R/Data_Generator loop.R
 cuda/SkeletonMI.so
 tpcConsIntern.so
 dataset_imputed*
+R/use_tpc_cuda_MI.R
+R/tpc_cons_intern_test.R
+cuda/tpc_cons_intern.h
+cuda/tpc_cons_intern.cu
+cuda/test.cu

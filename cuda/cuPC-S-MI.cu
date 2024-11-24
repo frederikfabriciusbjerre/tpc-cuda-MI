@@ -20,7 +20,7 @@
 //============================================================================
 
 
-void SkeletonMI(double* C, int *P, int *Nrows, int *m, int *G, double *Alpha, int *l, int *maxlevel, double *pMax, int* SepSet, int* tiers)
+void SkeletonMI(double* C, int *P, int *Nrows, int *m, int *G, double *Alpha, int *l, int *maxlevel, double *pMax, int* SepSet, int* tiers, int* DF_method)
 {
     double *C_cuda;         // copy of C array in GPU
     double *pMax_cuda;
@@ -34,8 +34,12 @@ void SkeletonMI(double* C, int *P, int *Nrows, int *m, int *G, double *Alpha, in
     int    n = *P;
     int    nrows = *Nrows;
     int    M = *m;
-    double  alpha = *Alpha;
+    double alpha = *Alpha;
 	int    nprime = 0;
+
+    // copy df_method as global variable
+    cudaMemcpyToSymbol(df_method, DF_method, sizeof(int));
+
     dim3   BLOCKS_PER_GRID;
     dim3   THREADS_PER_BLOCK;
     
@@ -275,7 +279,7 @@ __global__ void cal_Indepl0(
             z_m[m] = rho_m;
         }
         // compute MI p-value
-        p_val = compute_MI_p_value(z_m, M, nrows, ord);
+        p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
         if (p_val >= alpha) {
             // asign values to pMax and remove edges
             pMax[row * n + col] = p_val;
@@ -402,7 +406,7 @@ __global__ void cal_Indepl1(
                         z_m[m] = Z_m;
                     }
                     // compute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
 
                     if (p_val >= alpha) {
                         if (atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0) {
@@ -578,7 +582,7 @@ __global__ void cal_Indepl2(
                         z_m[m] = Z_m;
                     }
                     // compute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha) {
                         if (atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0) {
                             // update G and pMax
@@ -769,7 +773,7 @@ __global__ void cal_Indepl3(
                         z_m[m] = Z_m;
                     }
                     // compute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha) {
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock        
                             // update G and pMax                
@@ -976,7 +980,7 @@ __global__ void cal_Indepl4(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -1181,7 +1185,7 @@ __global__ void cal_Indepl5(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -1388,7 +1392,7 @@ __global__ void cal_Indepl6(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -1595,7 +1599,7 @@ __global__ void cal_Indepl7(
                         z_m[m] = Z_m;
                     }
                     // compute MI p-value                   
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -1799,7 +1803,7 @@ __global__ void cal_Indepl8(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -2003,7 +2007,7 @@ __global__ void cal_Indepl9(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -2208,7 +2212,7 @@ __global__ void cal_Indepl10(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -2413,7 +2417,7 @@ __global__ void cal_Indepl11(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -2618,7 +2622,7 @@ __global__ void cal_Indepl12(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -2822,7 +2826,7 @@ __global__ void cal_Indepl13(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
@@ -3026,7 +3030,7 @@ __global__ void cal_Indepl14(
                         z_m[m] = Z_m;
                     }
                     // comptute MI p-value
-                    p_val = compute_MI_p_value(z_m, M, nrows, ord);
+                    p_val = compute_MI_p_value(z_m, M, nrows, ord, df_method);
                     if (p_val >= alpha){
                         if(atomicCAS(&mutex[XIdx * n + YIdx], 0, 1) == 0){ // lock
                             // update G and pMax
