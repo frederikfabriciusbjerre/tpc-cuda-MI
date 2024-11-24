@@ -5,7 +5,32 @@
 #include <cuda_runtime.h>
 // #include "pt_old.cuh"  
 #include "pt.cuh"
-__device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int ord) {
+
+__device__ double df_reiter(double B, double U, double m, double dfcom) {
+    // Intermediate calculations
+    double t = m - 1.0;
+    double r = (1.0 + 1.0 / m) * B / U;
+    double a = r * t / (t - 2.0);
+    double vstar = ((dfcom + 1.0) / (dfcom + 3.0)) * dfcom;
+
+    double c0 = 1.0 / (t - 4.0);
+    double c1 = vstar - 2.0 * (1.0 + a);
+    double c2 = vstar - 4.0 * (1.0 + a);
+
+    // Calculations for z
+    double z = 1.0 / c2 +
+               c0 * (pow(a, 2) * c1 / (pow(1.0 + a, 2) * c2)) +
+               c0 * (8.0 * pow(a, 2) * c1 / ((1.0 + a) * pow(c2, 2)) + 4.0 * pow(a, 2) / ((1.0 + a) * c2)) +
+               c0 * (4.0 * pow(a, 2) / (c2 * c1) + 16.0 * pow(a, 2) * c1 / pow(c2, 3)) +
+               c0 * (8.0 * pow(a, 2) / pow(c2, 2));
+
+    // Final calculation for v
+    double v = 4.0 + 1.0 / z;
+
+    return v;
+}
+
+__device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int ord, int df_method) {
     // if m = 1
     // calculate avgz
     double z_sum = 0.0;
@@ -14,7 +39,8 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
     }
     double avgz = z_sum / M;
     // calculate within-imputation variance
-    double W = 1.0 / (nrows - 3 - ord);
+    double df_com = nrows - 3 - ord;
+    double W = 1.0 / df_com;
 
     // calculate between-imputation variance
     double B = 0.0;
@@ -37,8 +63,23 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
     double df;
     if (B > 1e-12) {
         double temp = (W / B) * (M / (M + 1.0));
-        df = (M - 1) * (1.0 + temp) * (1.0 + temp);
-        if (df > 10000) df = INFINITY; // this should be reconsidered at some point
+        // rubin's original approximation
+        double df_old = (M - 1) * (1.0 + temp) * (1.0 + temp);
+
+        // Choose the degrees of freedom method
+        if (df_method == 0) {
+            df = df_old;  // Rubin's method
+        } else if (df_method == 1) {
+            // barnard and rubin's approximation (1999)
+            double lambda = (B + B / M) / TV;
+            double df_obs = (1 - lambda) * ((df_com + 1) / (df_com + 3)) * df_com;
+            double df_br = (df_old * df_obs) / (df_old + df_obs);
+            df = df_br;   
+        } else if (df_method == 2) {
+            df = df_reiter(B, W, M, df_com);
+        } else {
+            df = INFINITY; // fallback for invalid input
+        }
     } else {
         df = INFINITY;
     }
