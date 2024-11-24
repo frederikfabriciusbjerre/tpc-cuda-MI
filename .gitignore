@@ -15,3 +15,4 @@ cuda/tpc_cons_intern.h
 cuda/tpc_cons_intern.cu
 cuda/test.cu
 cuda/.lintr
+bnlearn_networks
