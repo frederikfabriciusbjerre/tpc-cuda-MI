@@ -87,7 +87,7 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
             df = INFINITY; // fallback for invalid input
         }
     } else {
-        df = INFINITY;
+        df = INFINITY; // if problems with imputations or if m=1
     }
 
     // return p-value

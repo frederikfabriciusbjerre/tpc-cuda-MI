@@ -17,6 +17,98 @@ source("R/tpc.R")
 source("R/fixedMItest.R")
 source("cuda/cuPCMI.R")
 library(ggplot2)
+zStatMI <- function (x, y, S, C, n)
+{
+  r <- pcalg::pcorOrder(x, y, S, C)
+  res <- 0.5 * log_q1pm(r)
+  if (is.na(res))
+    0
+  else res
+}
+
+log_q1pm <- function(r) log1p(2 * r / (1 - r))
+
+df.reiter <- function(B, U, m, dfcom){
+  # modified from https://github.com/mwheymans/miceafter/blob/main/R/pool_bftest.R
+  t <- (m - 1)
+  r <- (1+1/m)*B/U
+  a <- r*t/(t-2)
+  vstar <- ( (dfcom+1) / (dfcom+3) ) * dfcom
+  
+  c0 <- 1 / (t-4)
+  c1 <- vstar - 2 * (1+a)
+  c2 <- vstar - 4 * (1+a)
+  
+  z <- 1 / c2 +
+    c0 * (a^2 * c1 / ((1+a)^2 * c2)) +
+    c0 * (8*a^2 * c1 / ((1+a) * c2^2) + 4*a^2 / ((1+a) * c2)) +
+    c0 * (4*a^2 / (c2 * c1) + 16*a^2 * c1 / c2^3) +
+    c0 * (8*a^2 / c2^2)
+  
+  v <- 4 + 1/z
+  
+  return(v)
+}
+gaussMItest_df_corrected <- function (x, y, S, suffStat, df_correction_method = 'df_br') {
+  
+  # number of imputations
+  M <- length(suffStat) - 1
+  # sample size
+  n <- suffStat[[M+1]]
+  suffStat[[M+1]] <- NULL
+  
+  z <- sapply(suffStat, function(j) {
+    zStatMI(x, y, S, C=j, n=n)
+  })
+  
+  # 1. Average of M imputed data sets
+  avgz <- mean(z)
+  
+  # 2. Average of completed-data variance
+  W <- 1 / (n - length(S) - 3)
+  
+  # 3. Between variance
+  B <- sum((z - avgz)^2) / (M - 1)
+  
+  # 4. Total variance
+  TV <- W + (1 + 1 / M) * B
+  
+  # 5. Test statistic
+  ts <- avgz / sqrt(TV)
+  
+  # 6. Degrees of freedom
+  lambda <- (B + B/M) / TV
+  df_old <- (M - 1) / lambda^2
+  df_com <- n - (length(S) + 3)
+  df_obs <- (1 - lambda) * ((df_com + 1) / (df_com + 3)) * df_com
+  df_br <- df_old * df_obs / (df_old + df_obs)
+  df_reiter <- df.reiter(B, W, M, df_com)
+  
+  # Handle NaN values
+  if (is.nan(df_br) || is.infinite(df_br)){
+    df_br <- ((df_com + 1) / (df_com + 3)) * df_com
+  }
+    if (is.nan(df_reiter) || is.infinite(df_reiter)){
+    df_reiter <- ((df_com + 1) / (df_com + 3)) * df_com
+  }
+  
+  # Choose degrees of freedom based on correction method
+  if (df_correction_method == 'old'){
+    df_ <- df_old
+  } else if (df_correction_method == 'br'){
+    df_ <- df_br
+  } else if (df_correction_method == 'reiter'){
+    df_ <- df_reiter
+  } else {
+    stop("Invalid df_correction_method specified")
+  }
+  
+  # 7. pvalue
+  pvalue <- 2 * stats::pt(abs(ts), df = df_, lower.tail = FALSE)
+  
+  return(pvalue)
+}
+
 
 # List of networks and their names
 network_list <- list(
@@ -52,12 +144,12 @@ for (network_name in names(network_list)) {
   # Get the adjacency matrix of the true DAG
   dag_adjmat <- as(dag_graphNEL, "matrix")
   
-  for (m in c(100, 10, 5)) {
-    for (n in c(1000, 25)) {
+  for (m in c(100, 10)) {
+    for (n in c(100, 25)) {
         for (prop_miss in c(0.1, 0.5, 0.9)){
             for (epoch in 1:10) {
                 i <- i + 1
-                cat("Network:", network_name, ", n =", n, ", m =", m, ", epoch =", epoch, "\n")
+                cat("Network:", network_name, ", n =", n, ", m =", m, ", prop_miss", prop_miss, ", epoch =", epoch, "\n")
                 
                 # Generate synthetic data from the network
                 set.seed(i)  # For reproducibility
@@ -89,14 +181,16 @@ for (network_name in names(network_list)) {
                 # Run PC algorithm on complete data (without missing values)
                 suff_complete <- list(C = cor(data_sample), n = nrow(data_sample))
                 pc_complete <- pcalg::pc(suffStat = suff_complete, indepTest = pcalg::gaussCItest, 
-                                        alpha = alpha, p = p, m.max = 12)
+                                 alpha = alpha, p = p)
                 adjmat_complete <- as(pc_complete@graph, "matrix")
                 
                 # Run PC algorithm on imputed data with each df_correction_method
                 
                 for (df_correction_method in df_correction_methods) {
-                    cat("cuPC fitting with", df_correction_method, "... \n")
-                    pc_imputed <- cu_pc_MI(suff_imputed, p = p, alpha = alpha, m.max = 12, df_method = df_correction_method)
+                    cat("pcalg fitting with", df_correction_method, "... \n")
+                    pc_imputed <- pcalg::pc(suffStat = suff_imputed, indepTest = function(x, y, S, suffStat) {
+                                            gaussMItest_df_corrected(x, y, S, suffStat, df_correction_method)
+                                        }, alpha = alpha, p = p)
                     
                     adjmat_imputed <- as(pc_imputed@graph, "matrix")
                     
@@ -154,3 +248,11 @@ for (network_name in names(network_list)) {
 
 # Display the results
 print(results)
+summary_results <- results %>%
+  group_by(network, n, df_correction_method) %>%
+  summarise(mean_recall = mean(recall, na.rm = TRUE),
+            mean_precision = mean(precision, na.rm = TRUE),
+            mean_hamming_distance = mean(hamming_distance),
+            mean_shd = mean(shd))
+
+print(summary_results, n=nrow(summary_results))
