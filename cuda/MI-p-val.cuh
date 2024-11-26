@@ -54,45 +54,48 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
     }
 
     // calculate total variance
-    double TV = W + (1.0 + 1.0 / M) * B;
+    double temp = (1.0 + 1.0 / M) * B;
+    double TV = W + temp;
 
     // calculate test stat
     double ts = avgz / sqrt(TV);
 
     // calculate degrees of freedom
     double df;
-    if (B > 1e-12) {
-        double temp = (W / B) * (M / (M + 1.0));
-        // rubin's original approximation
-        double df_old = (M - 1) * (1.0 + temp) * (1.0 + temp);
 
-        // Choose the degrees of freedom method
-        if (df_method == 0) {
-            df = df_old;  // Rubin's method
-        } else if (df_method == 1) {
-            // barnard and rubin's approximation (1999)
-            double lambda = (B + B / M) / TV;
-            double df_obs = (1 - lambda) * ((df_com + 1) / (df_com + 3)) * df_com;
-            double df_br = (df_old * df_obs) / (df_old + df_obs);
-            df = df_br;   
-            if (isnan(df) || df < 1.0 || isinf(df)) {
-                df = df_com;
-            }
-        } else if (df_method == 2) {
-            df = df_reiter(B, W, M, df_com);
-            if (isnan(df) || df < 1.0 || isinf(df)) {
-                df = df_com;
-            }
+    // calculate lambda
+    double lambda = temp / TV;
+    double lambda_sq = lambda * lambda;
+
+    // choose the degrees of freedom method
+    if (df_method == 0) {
+        // rubin's original approximation
+        if (lambda > 1e-12) {
+            double df_old = (M - 1) * (1 + (W / B) * (M/(M + 1))) * (1 + (W / B) * (M/(M + 1)));
+            df = df_old;        
         } else {
-            df = INFINITY; // fallback for invalid input
+            df = INFINITY;
+        }
+    } else if (df_method == 1) {
+        // barnard and rubin's approximation (1999)
+        // based on rewrite that can be found in master thesis by Frederik Fabricius-Bjerre
+        double br_const = (1.0 - lambda) * (1.0 + df_com) * df_com;
+        double df_br =  (M - 1) * br_const / ((df_com + 3.0) * (M - 1) + lambda_sq * br_const); 
+        df = df_br;   
+        if (isnan(df) || isinf(df)) {
+            df = ((df_com + 1.0) / (df_com + 3.0)) * df_com;
+        }
+    } else if (df_method == 2) {
+        df = df_reiter(B, W, M, df_com);
+        if (isnan(df) || isinf(df)) {
+            df = ((df_com + 1.0) / (df_com + 3.0)) * df_com;
         }
     } else {
-        df = INFINITY; // if problems with imputations or if m=1
+        df = INFINITY; // fallback for invalid input
     }
 
     // return p-value
-
-    // double p_val = 2.0 * (1.0 - pt(fabs(ts), df)); 
+    // double p_val = 2.0 * (1.0 - pt(fabs(ts), df)); // if using old
     double p_val = 2.0 * pt(fabs(ts), df, 0, 0);
     return p_val;
 }
