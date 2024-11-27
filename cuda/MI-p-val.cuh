@@ -70,7 +70,7 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
     // choose the degrees of freedom method
     if (df_method == 0) {
         // rubin's original approximation
-        if (lambda > 1e-12) {
+        if (B > 1e-12) {
             double df_old = (M - 1) * (1 + (W / B) * (M/(M + 1))) * (1 + (W / B) * (M/(M + 1)));
             df = df_old;        
         } else {
