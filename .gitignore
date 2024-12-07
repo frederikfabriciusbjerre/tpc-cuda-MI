@@ -17,3 +17,12 @@ cuda/test.cu
 cuda/.lintr
 bnlearn_networks
 si_vs_mi_experiment/imputed_datasets_cohort_*
+results_26Nov_final.csv
+results_si_vs_mi_config1n3000_old_full_second_edition.csv
+results_si_vs_mi_config1n3000_old_full.csv
+results_si_vs_mi_config1n3000_old.csv
+results_si_vs_mi_config2n100.csv
+results_si_vs_mi_config2n3000_cpu2.csv
+results_with_lambda.csv
+.lintr
+si_vs_mi_experiment/.lintr
