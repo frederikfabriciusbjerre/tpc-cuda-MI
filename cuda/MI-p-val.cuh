@@ -66,32 +66,31 @@ __device__ double compute_MI_p_value(const double* z_m, int M, int nrows, int or
     // calculate lambda
     double lambda = temp / TV;
     double lambda_sq = lambda * lambda;
-
-    // choose the degrees of freedom method
-    if (df_method == 0) {
-        // rubin's original approximation
-        if (B > 1e-12) {
+    if (M > 1){
+        // choose the degrees of freedom method
+        if (df_method == 0) {
+            // rubin's original approximation
             double df_old = (M - 1) * (1 + (W / B) * (M/(M + 1))) * (1 + (W / B) * (M/(M + 1)));
-            df = df_old;        
+            df = df_old;
+        } else if (df_method == 1) {
+            // barnard and rubin's approximation (1999)
+            // based on rewrite that can be found in master thesis by Frederik Fabricius-Bjerre
+            double br_const = (1.0 - lambda) * (1.0 + df_com) * df_com;
+            double df_br =  (M - 1) * br_const / ((df_com + 3.0) * (M - 1) + lambda_sq * br_const); 
+            df = df_br;   
+            if (isnan(df) || isinf(df)) {
+                df = ((df_com + 1.0) / (df_com + 3.0)) * df_com;
+            }
+        } else if (df_method == 2) {
+            df = df_reiter(B, W, M, df_com);
+            if (isnan(df) || isinf(df)) {
+                df = ((df_com + 1.0) / (df_com + 3.0)) * df_com;
+            }
         } else {
-            df = INFINITY;
-        }
-    } else if (df_method == 1) {
-        // barnard and rubin's approximation (1999)
-        // based on rewrite that can be found in master thesis by Frederik Fabricius-Bjerre
-        double br_const = (1.0 - lambda) * (1.0 + df_com) * df_com;
-        double df_br =  (M - 1) * br_const / ((df_com + 3.0) * (M - 1) + lambda_sq * br_const); 
-        df = df_br;   
-        if (isnan(df) || isinf(df)) {
-            df = ((df_com + 1.0) / (df_com + 3.0)) * df_com;
-        }
-    } else if (df_method == 2) {
-        df = df_reiter(B, W, M, df_com);
-        if (isnan(df) || isinf(df)) {
-            df = ((df_com + 1.0) / (df_com + 3.0)) * df_com;
+            df = INFINITY; // fallback for invalid input
         }
     } else {
-        df = INFINITY; // fallback for invalid input
+        df = INFINITY;
     }
 
     // return p-value

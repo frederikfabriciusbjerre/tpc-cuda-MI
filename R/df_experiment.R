@@ -49,6 +49,9 @@ df.reiter <- function(B, U, m, dfcom){
   
   return(v)
 }
+dfs <- c()
+lambdas <- c()
+
 gaussMItest_df_corrected <- function (x, y, S, suffStat, df_correction_method = 'df_br') {
   
   # number of imputations
@@ -78,7 +81,7 @@ gaussMItest_df_corrected <- function (x, y, S, suffStat, df_correction_method = 
   
   # 6. Degrees of freedom
   lambda <- (B + B/M) / TV
-  df_old <- (M - 1) / lambda^2
+  df_old <- (M - 1) * (1 + (W / B) * (M/(M + 1)))^2
   df_com <- n - (length(S) + 3)
   df_obs <- (1 - lambda) * ((df_com + 1) / (df_com + 3)) * df_com
   df_br <- df_old * df_obs / (df_old + df_obs)
@@ -103,6 +106,8 @@ gaussMItest_df_corrected <- function (x, y, S, suffStat, df_correction_method = 
     stop("Invalid df_correction_method specified")
   }
   
+  lambdas <<- c(lambdas, c(lambda))
+  dfs <<- c(dfs, c(df_))
   # 7. pvalue
   pvalue <- 2 * stats::pt(abs(ts), df = df_, lower.tail = FALSE)
   
@@ -145,7 +150,7 @@ for (network_name in names(network_list)) {
   dag_adjmat <- as(dag_graphNEL, "matrix")
   
   for (m in c(100, 10)) {
-    for (n in c(100, 25)) {
+    for (n in c(500, 100, 25)) {
         for (prop_miss in c(0.1, 0.5, 0.9)){
             for (epoch in 1:10) {
                 i <- i + 1
@@ -192,23 +197,23 @@ for (network_name in names(network_list)) {
                                             gaussMItest_df_corrected(x, y, S, suffStat, df_correction_method)
                                         }, alpha = alpha, p = p)
                     
+                    mean_df <- mean(dfs, na.rm = TRUE)
+                    mean_lambda <- mean(lambdas, na.rm = TRUE)
+                    dfs <- c()
+                    lambdas <- c()
+
                     adjmat_imputed <- as(pc_imputed@graph, "matrix")
                     
                     # Get the skeletons (convert to undirected graphs)
                     adjmat_imputed_skeleton <- (adjmat_imputed + t(adjmat_imputed)) > 0
                     
                     # Flatten adjacency matrices
-                    adj_imputed_vector <- as.vector(adjmat_imputed_skeleton)
-                    adjmat_complete_vector <- as.vector(adjmat_complete)
+                    adj_complete_vector <- as.vector((adjmat_complete + t(adjmat_complete)) > 0)
+                    adj_imputed_vector <- as.vector((adjmat_imputed + t(adjmat_imputed)) > 0)
                     
                     # Compute TP, FP, FN, TN
-                    TP <- sum(adj_imputed_vector == 1 & adjmat_complete_vector == 1)
-                    FP <- sum(adj_imputed_vector == 1 & adjmat_complete_vector == 0)
-                    FN <- sum(adj_imputed_vector == 0 & adjmat_complete_vector == 1)
-                    TN <- sum(adj_imputed_vector == 0 & adjmat_complete_vector == 0)
-                    
-                    recall <- if ((TP + FN) > 0) TP / (TP + FN) else NA
-                    precision <- if ((TP + FP) > 0) TP / (TP + FP) else NA
+                    recall_ <- Metrics::recall(adj_complete_vector, adj_imputed_vector)
+                    precision_ <- Metrics::precision(adj_complete_vector, adj_imputed_vector)
                     
                     # Compute Structural Hamming Distance (SHD)
                     shd_value <- pcalg::shd(pc_imputed@graph, pc_complete@graph)
@@ -224,19 +229,21 @@ for (network_name in names(network_list)) {
                         n = n,
                         epoch = epoch,
                         df_correction_method = df_correction_method,
+                        mean_lambda = mean_lambda,
+                        mean_df = mean_df,
                         prop_miss = prop_miss, 
-                        recall = recall,
-                        precision = precision,
+                        recall = recall_,
+                        precision = precision_,
                         hamming_distance = hamming_distance,
                         shd = shd_value,
                         stringsAsFactors = FALSE
                     ))
                     write.table(
                         results[nrow(results), ], 
-                        file = "results.csv", 
+                        file = "results_with_lambda.csv", 
                         sep = ",", 
                         row.names = FALSE, 
-                        col.names = !file.exists("results.csv"),  # Write header only if file doesn't exist
+                        col.names = !file.exists("results_with_lambda.csv"),  # Write header only if file doesn't exist
                         append = TRUE
                     )
                     }
@@ -246,13 +253,49 @@ for (network_name in names(network_list)) {
     }
 }
 
-# Display the results
-print(results)
-summary_results <- results %>%
-  group_by(network, n, df_correction_method) %>%
+# Calculate mean performance metrics grouped by df_correction_method and alpha
+results_no_lambda_zero <- subset(results, mean_lambda > 0) %>% subset(n > 25) %>%
+  mutate(mean_lambda_category = cut(mean_lambda, 
+                                    breaks = c(0, 0.01, 0.1, 0.175, 0.26),
+                                    labels = c("0-0.01", "0.01-0.1", "0.1-0.175", "0.175-0.25"),
+                                    include.lowest = TRUE))
+# write.csv(results, "results_26Nov_final.csv")
+
+results_no_lambda_zero %>%
+  group_by(df_correction_method) %>% 
   summarise(mean_recall = mean(recall, na.rm = TRUE),
             mean_precision = mean(precision, na.rm = TRUE),
             mean_hamming_distance = mean(hamming_distance),
             mean_shd = mean(shd))
 
-print(summary_results, n=nrow(summary_results))
+results_no_lambda_zero %>%
+  group_by(m, df_correction_method) %>% 
+  summarise(mean_recall = mean(recall, na.rm = TRUE),
+            mean_precision = mean(precision, na.rm = TRUE),
+            mean_hamming_distance = mean(hamming_distance),
+            mean_shd = mean(shd)) 
+
+results_no_lambda_zero %>% 
+  group_by(n, df_correction_method) %>% 
+  summarise(mean_recall = mean(recall, na.rm = TRUE),
+            mean_precision = mean(precision, na.rm = TRUE),
+            mean_hamming_distance = mean(hamming_distance),
+            mean_shd = mean(shd))
+
+results_no_lambda_zero %>%
+  group_by(mean_lambda_category, df_correction_method) %>% 
+  summarise(mean_recall = mean(recall, na.rm = TRUE),
+            mean_precision = mean(precision, na.rm = TRUE),
+            mean_hamming_distance = mean(hamming_distance),
+            mean_shd = mean(shd))
+
+results_no_lambda_zero %>%
+  group_by(prop_miss, df_correction_method) %>% 
+  summarise(mean_recall = mean(recall, na.rm = TRUE),
+            mean_precision = mean(precision, na.rm = TRUE),
+            mean_hamming_distance = mean(hamming_distance),
+            mean_shd = mean(shd))
+
+# library(xtable)
+#print(xtable(summary_results, type='latex'))
+

@@ -23,7 +23,7 @@ alpha <- 0.01
 max_order <- 12
 
 # read data as imputed_data
-dataset_path <- file.path("dataset_imputed_10/dataset_imputed_10.Rdata", fsep = .Platform$file.sep)
+dataset_path <- file.path("dataset_imputed_60/dataset_imputed_60.Rdata", fsep = .Platform$file.sep)
 load.Rdata(dataset_path, "imputed_data")
 
 # make suffStat
@@ -38,7 +38,7 @@ cat("\n")
 cat("MI\n")
 tic()
 start_timeMI <- Sys.time()
-cuda_tPC_MI <- cu_pc_MI(suffStatMI, p = p, alpha = alpha, m.max = max_order)
+cuda_tPC_MI <- cu_pc_MI(suffStatMI, p = p, alpha = alpha, m.max = max_order, df_method = "old")
 end_timeMI <- Sys.time()
 timeMI <- as.numeric(difftime(end_timeMI, start_timeMI, units = "secs"))
 print(cuda_tPC_MI@graph)
@@ -53,7 +53,7 @@ cat("\n")
 cat("SI\n")
 tic()
 start_timeSI <- Sys.time()
-cuda_tPC_SI <- cu_pc_MI(suffStatSI, p = p, alpha = alpha, m.max = max_order)
+cuda_tPC_SI <- pc(suffStatMI, indepTest = micd::gaussMItest, p = p, alpha = alpha, m.max = max_order)
 end_timeSI <- Sys.time()
 timeSI <- as.numeric(difftime(end_timeSI, start_timeSI, units = "secs"))
 print(cuda_tPC_SI@graph)
@@ -66,8 +66,8 @@ cat("\n")
 
 
 # Calculate proportion of time
-time_ratio <- timeMI / timeSI
+time_ratio <- timeSI / timeMI
 cat("timeMI / timeSI =", time_ratio, "\n")
 
-cat("shd:", shd(cuda_tPC_SI, cuda_tPC_MI), "hd:", shd(ugraph(cuda_tPC_SI@graph), ugraph(cuda_tPC_MI@graph)), "\n")
+cat("shd:", pcalg::shd(cuda_tPC_SI, cuda_tPC_MI), "hd:", pcalg::shd(ugraph(cuda_tPC_SI@graph), ugraph(cuda_tPC_MI@graph)), "\n")
 cat("######################################################################################\n\n\n")
