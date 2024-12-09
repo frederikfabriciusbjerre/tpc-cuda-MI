@@ -133,11 +133,11 @@ results <- data.frame(p = integer(),
                       shd = integer(),
                       stringsAsFactors = FALSE)
 
-filename <- "results_si_vs_mi_config2n3000_tpc_gpu.csv"
+filename <- "results_si_vs_mi_config2n100_tpc_gpu.csv"
 
 alpha <- 0.05
 p <- 33
-n <- 3000
+n <- 100
 m_max <- 1000
 
 ##############################################
@@ -151,14 +151,14 @@ for (i in 1:99){
   imp_i <- paste0("imp", i)
   # load imputed data
   if (i < 1){
-    dataset_imp_path<- paste0("si_vs_mi_experiment/imputed_datasets_cohort_config2n3000/", imp_i, "/", imp_i, ".Rdata")
+    dataset_imp_path<- paste0("si_vs_mi_experiment/imputed_datasets_cohort_config2n100/", imp_i, "/", imp_i, ".Rdata")
   } else{
-    dataset_imp_path<- paste0("si_vs_mi_experiment/imputed_datasets_cohort_config2n3000/", imp_i, ".Rdata")
+    dataset_imp_path<- paste0("si_vs_mi_experiment/imputed_datasets_cohort_config2n100/", imp_i, ".Rdata")
   }
   imputed_data <- get(load(dataset_imp_path))
   
   # load complete data
-  cohort_path <- paste0("si_vs_mi_experiment/data/config2n3000/cohort", i, ".Rdata")
+  cohort_path <- paste0("si_vs_mi_experiment/data/config2n100/cohort", i, ".Rdata")
   cohort <- get(load(cohort_path))
   complete_data <- cohort$data
 
